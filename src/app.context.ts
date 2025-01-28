@@ -9,6 +9,8 @@ export type AppContextProps = {
     setColorMode: (colorMode: ColorMode) => void
     autoConnect: boolean
     setAutoConnect: (autoConnect: boolean) => void
+    showAddNode: boolean
+    setShowAddNode: (showAddNode: boolean) => void
 }
 
 export const AppContext = createContext<AppContextProps>({
@@ -18,5 +20,7 @@ export const AppContext = createContext<AppContextProps>({
     setColorMode: () => { },
     autoConnect: true,
     setAutoConnect: () => { },
+    showAddNode: false,
+    setShowAddNode: () => { }
 })
 

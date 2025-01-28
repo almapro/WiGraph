@@ -1,15 +1,6 @@
 import type { Node, BuiltInNode } from "@xyflow/react";
+import { Wifi } from "../nodes.types";
 
 export type PositionLoggerNode = Node<{ label: string }, "position-logger">;
-export type WifiNode = Node<
-  {
-    ESSID: string;
-    BSSID: string;
-    password: string;
-    pin: string;
-    handshakes: string[];
-    label: string;
-  },
-  "wifi"
->;
+export type WifiNode = Node<Wifi, "wifi">;
 export type AppNode = BuiltInNode | PositionLoggerNode | WifiNode;
