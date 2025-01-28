@@ -1,12 +1,12 @@
-import { Driver } from "neo4j-driver";
-import { FC } from "react";
+import { useContext } from "react";
 import { Navigate, useLocation } from "react-router";
 import { DashboardView } from "../views";
-import { ColorMode } from "@xyflow/react";
+import { AppContext } from "../app.context";
 
-export const RestrictedRoute: FC<{ driver: Driver | null, setColorMode: React.Dispatch<React.SetStateAction<ColorMode>>, colorMode: ColorMode }> = ({ driver, setColorMode, colorMode }) => {
+export const RestrictedRoute = () => {
+	const { driver } = useContext(AppContext);
 	const location = useLocation();
 	return driver === null ? <Navigate to='/connect' replace state = {{ from: location.pathname }
-} /> : <DashboardView driver={driver} colorMode={colorMode} setColorMode={setColorMode} / >;
+} /> : <DashboardView driver={driver} / >;
 }
 

@@ -1,15 +1,16 @@
-import { auth, Driver, driver as neo4jDriver, Neo4jError } from 'neo4j-driver';
+import { auth, driver as neo4jDriver, Neo4jError } from 'neo4j-driver';
 import { Navigate } from 'react-router';
 import { FloatingButtonComponent } from '../components';
-import { FaMoon, FaSun } from 'react-icons/fa';
-import { ColorMode } from '@xyflow/react';
-import { useCallback, useEffect, useState } from 'react';
+import { FaEye, FaEyeSlash, FaMoon, FaSun } from 'react-icons/fa';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useLocalStorage, useTitle } from 'react-use';
 import { Label, TextInput, Button } from 'flowbite-react';
 import { useSnackbar } from 'notistack';
+import { AppContext } from '../app.context';
 
-export const ConnectView: React.FC<{ driver: Driver | null, setDriver: React.Dispatch<React.SetStateAction<Driver | null>>, setColorMode: React.Dispatch<React.SetStateAction<ColorMode>>, colorMode: ColorMode }> = ({ driver, setDriver, setColorMode, colorMode }) => {
+export const ConnectView = () => {
 	useTitle('WiGraph - Connect');
+	const { driver, setDriver, setColorMode, colorMode, autoConnect, setAutoConnect } = useContext(AppContext);
 	const { enqueueSnackbar } = useSnackbar();
 	const [localUrl, setLocalUrl] = useLocalStorage<string>('neo4j_url')
 	const [localUsername, setLocalUsername] = useLocalStorage<string>('neo4j_username')
@@ -26,7 +27,6 @@ export const ConnectView: React.FC<{ driver: Driver | null, setDriver: React.Dis
 		setLocalDatabase(database);
 	}, [url, username, password, database, setLocalUrl, setLocalUsername, setLocalPassword, setLocalDatabase]);
 	const [showPassword, setShowPassword] = useState(false);
-	const [autoConnect, setAutoConnect] = useState(true);
 	const [loading, setLoading] = useState(false);
 	const handleOnSubmit: React.FormEventHandler = async e => {
 		e.preventDefault();
@@ -83,16 +83,19 @@ export const ConnectView: React.FC<{ driver: Driver | null, setDriver: React.Dis
 								<div className="mb-2 block" >
 									<Label htmlFor="password" value = "Password" />
 										</div>
-										< TextInput required id = "password" value = { password } onChange = { e => setPassword(e.target.value) } />
-											</div>
-											< div >
-											<div className="mb-2 block" >
-												<Label htmlFor="database" value = "Database" />
+										< div className = "flex gap-2" >
+											<TextInput className='grow' required type = { showPassword? 'text': 'password' } id = "password" value = { password } onChange = { e => setPassword(e.target.value) } />
+												<Button className='flex' onClick = { () => setShowPassword(!showPassword) }> { showPassword?<FaEyeSlash className = 'm-auto' /> : <FaEye className='m-auto' /> }</Button >
 													</div>
-													< TextInput required id = "database" value = { database } onChange = { e => setDatabase(e.target.value) } />
-														</div>
-														< Button type = "submit" disabled = { loading } > Connect </Button>
-															</form>
+													</div>
+													< div >
+													<div className="mb-2 block" >
+														<Label htmlFor="database" value = "Database" />
 															</div>
+															< TextInput required id = "database" value = { database } onChange = { e => setDatabase(e.target.value) } />
+																</div>
+																< Button type = "submit" disabled = { loading } > Connect </Button>
+																	</form>
+																	</div>
 	) : (<Navigate to= '/' />)
 }
