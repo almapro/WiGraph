@@ -1,4 +1,4 @@
-import { Panel } from "@xyflow/react";
+import { Panel, useReactFlow } from "@xyflow/react";
 import {
   FaDownload,
   FaFileUpload,
@@ -11,10 +11,15 @@ import { useContext } from "react";
 import { AppContext } from "../app.context";
 import { VscDebugDisconnect } from "react-icons/vsc";
 import { FaRotateLeft } from "react-icons/fa6";
+import { getNodes } from "../neo4j";
+import { useStore } from "../store";
+import { useShallow } from "zustand/shallow";
 
 export const FloatingActionsComponent = () => {
   const { colorMode, setColorMode, setDriver, driver, setShowAddNode } =
     useContext(AppContext);
+  const { fitView } = useReactFlow();
+  const setNodes = useStore(useShallow((state) => state.setNodes));
   return (
     <Panel position="top-right" className="flex flex-col gap-2">
       <FloatingButtonComponent
@@ -36,8 +41,7 @@ export const FloatingActionsComponent = () => {
       <FloatingButtonComponent
         tooltip="Refresh"
         onClick={() => {
-          driver?.close();
-          setDriver(null);
+          if (driver) getNodes(driver, setNodes, fitView);
         }}
       >
         <FaRotateLeft className="m-auto" />
