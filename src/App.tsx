@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ColorMode } from "@xyflow/react";
+import { ColorMode, ReactFlowProvider } from "@xyflow/react";
 import { useLocalStorage } from "react-use";
 
 import "@xyflow/react/dist/style.css";
@@ -11,6 +11,7 @@ import { ConnectView } from "./views";
 import { Driver } from "neo4j-driver";
 import { SnackbarProvider } from "notistack";
 import { AppContext } from "./app.context";
+import { theme } from "./flowbite.theme";
 
 export default function App() {
   const [storedColorMode, setStoredColorMode] = useLocalStorage(
@@ -44,42 +45,17 @@ export default function App() {
         setShowAddNode,
       }}
     >
-      <Flowbite
-        theme={{
-          theme: {
-            tooltip: {
-              arrow: {
-                style: {
-                  dark: "bg-gray-900 dark:bg-zinc-700",
-                  light: "bg-white",
-                  auto: "bg-white dark:bg-zinc-700",
-                },
-              },
-              style: {
-                dark: "bg-gray-900 text-white dark:bg-zinc-700",
-                auto: "border border-gray-200 bg-white text-gray-900 dark:border-none dark:bg-zinc-700 dark:text-white",
-              },
-            },
-            textInput: {
-              field: {
-                input: {
-                  colors: {
-                    gray: "border-gray-300 bg-gray-50 text-gray-900 focus:border-cyan-500 focus:ring-cyan-500 dark:border-gray-600 dark:bg-zinc-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-cyan-500 dark:focus:ring-cyan-500",
-                  },
-                },
-              },
-            },
-          },
-        }}
-      >
+      <Flowbite theme={theme}>
         <SnackbarProvider
           maxSnack={3}
           anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-          <Routes>
-            <Route path="/" element={<RestrictedRoute />} />
-            <Route path="/connect" element={<ConnectView />} />
-          </Routes>
+          <ReactFlowProvider>
+            <Routes>
+              <Route path="/" element={<RestrictedRoute />} />
+              <Route path="/connect" element={<ConnectView />} />
+            </Routes>
+          </ReactFlowProvider>
         </SnackbarProvider>
       </Flowbite>
     </AppContext.Provider>
