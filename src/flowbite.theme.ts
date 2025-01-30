@@ -15,7 +15,7 @@ export const theme: ThemeProps = {
             },
             content: {
                 inner:
-                    "relative flex max-h-[90dvh] flex-col rounded-lg bg-white shadow dark:bg-zinc-700",
+                    "relative flex max-h-[90dvh] flex-col rounded-lg bg-white shadow dark:bg-zinc-800",
             },
             header: {
                 base: "flex items-start justify-between rounded-t border-b p-5 dark:border-zinc-600",
