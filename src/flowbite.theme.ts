@@ -1,7 +1,6 @@
-import { ThemeProps } from "flowbite-react";
+import { createTheme } from "flowbite-react";
 
-export const theme: ThemeProps = {
-    theme: {
+export const theme = createTheme({
         button: {
             color: {
                 info: "border border-transparent bg-purple-700 text-white focus:ring-4 focus:ring-purple-300 enabled:hover:bg-purple-800 dark:bg-purple-600 dark:focus:ring-purple-900 dark:enabled:hover:bg-purple-700",
@@ -46,5 +45,4 @@ export const theme: ThemeProps = {
                 },
             },
         },
-    },
-};
+});

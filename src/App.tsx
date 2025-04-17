@@ -5,7 +5,7 @@ import { useLocalStorage } from "react-use";
 import "@xyflow/react/dist/style.css";
 
 import { RestrictedRoute } from "./components";
-import { Flowbite, useThemeMode } from "flowbite-react";
+import { ThemeProvider as Flowbite, useThemeMode } from "flowbite-react";
 import { Route, Routes } from "react-router";
 import { ConnectView } from "./views";
 import { Driver } from "neo4j-driver";
