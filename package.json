@@ -1,17 +1,18 @@
 {
-  "name": "vite-react-flow-template",
+  "name": "wigraph",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "flowbite-react patch"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.0",
     "@xyflow/react": "^12.5.6",
-    "flowbite-react": "^0.10.2",
+    "flowbite-react": "^0.11.7",
     "lodash": "^4.17.21",
     "neo4j-driver": "^5.27.0",
     "notistack": "^3.0.2",
