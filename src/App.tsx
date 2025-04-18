@@ -8,7 +8,7 @@ import { Route, Routes } from "react-router";
 import { ConnectView } from "./views";
 import { Driver } from "neo4j-driver";
 import { SnackbarProvider } from "notistack";
-import { AppContext } from "./app.context";
+import { AppContext } from "./context";
 import { theme } from "./flowbite.theme";
 
 export default function App() {

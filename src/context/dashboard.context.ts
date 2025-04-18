@@ -1,6 +1,6 @@
 import { Driver } from "neo4j-driver";
 import { createContext } from "react";
-import { AppNode } from "./nodes/types";
+import { AppNode } from "../nodes/types";
 
 export type DashboardContextProps = {
     driver: Driver;

@@ -1,12 +1,11 @@
 import { Button, HelperText, Label, TextInput, Tooltip } from "flowbite-react";
 import { FC, Ref, useContext, useState } from "react";
 import _ from "lodash";
-import { DashboardContext } from "../../dashboard.context";
 import { v4 } from "uuid";
 import { FaEye, FaEyeSlash, FaWifi } from "react-icons/fa";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { useSnackbar } from "notistack";
-import { AppContext } from "../../app.context";
+import { AppContext, DashboardContext } from '../../context';
 import { useReactFlow } from "@xyflow/react";
 
 export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({

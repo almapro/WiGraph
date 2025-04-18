@@ -1,6 +1,6 @@
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter } from "flowbite-react";
+import { DashboardContext } from '../context';
 import { useContext } from "react";
-import { DashboardContext } from "../dashboard.context";
 import { useReactFlow } from "@xyflow/react";
 import { deleteNode } from "../neo4j";
 import { useSnackbar } from "notistack";

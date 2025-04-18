@@ -1,6 +1,6 @@
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter } from "flowbite-react";
 import { createRef, useContext } from "react";
-import { AppContext } from "../app.context";
+import { AppContext } from "../context";
 import { AddWifiNodeComponent } from "./add-node";
 
 export const AddNodeComponent = () => {

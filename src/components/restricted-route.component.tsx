@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Navigate, useLocation } from "react-router";
 import { DashboardView } from "../views";
-import { AppContext } from "../app.context";
+import { AppContext } from "../context";
 
 export const RestrictedRoute = () => {
   const { driver } = useContext(AppContext);

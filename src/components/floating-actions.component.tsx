@@ -7,14 +7,13 @@ import {
   FaSun,
 } from "react-icons/fa";
 import { FloatingButtonComponent } from "./floating-actions";
-import { useContext } from "react";
-import { AppContext } from "../app.context";
+import { useContext } from 'react';
+import { AppContext, DashboardContext } from '../context';
 import { VscDebugDisconnect } from "react-icons/vsc";
 import { FaRotateLeft } from "react-icons/fa6";
 import { getNodes } from "../neo4j";
 import { useStore } from "../store";
 import { useShallow } from "zustand/shallow";
-import { DashboardContext } from "../dashboard.context";
 export const FloatingActionsComponent = () => {
   const { colorMode, setColorMode, setDriver, setShowAddNode } =
     useContext(AppContext);

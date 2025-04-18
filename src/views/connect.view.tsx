@@ -6,7 +6,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useLocalStorage, useTitle } from "react-use";
 import { Label, TextInput, Button } from "flowbite-react";
 import { useSnackbar } from "notistack";
-import { AppContext } from "../app.context";
+import { AppContext } from "../context";
 
 export const ConnectView = () => {
   useTitle("WiGraph - Connect");

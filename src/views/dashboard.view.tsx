@@ -16,12 +16,11 @@ import { initialNodes, nodeTypes } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
 import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, FloatingActionsComponent } from "../components";
 import { useTitle } from "react-use";
-import { AppContext } from "../app.context";
+import { AppContext, DashboardContext } from "../context";
 import { getNodes } from "../neo4j";
-import { DashboardContext } from "../dashboard.context";
 import { AppNode } from "../nodes/types";
 
-export const DashboardView: React.FC<{ driver: Driver }> = ({ driver }) => {
+export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   useTitle("WiGraph - Dashboard");
   const { colorMode } = useContext(AppContext);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -68,7 +67,20 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({ driver }) => {
       }}
     >
       <DashboardContext.Provider
-        value={{ driver, contextMenu, isConvertingToWifi, setIsConvertingToWifi, isAddingClients, setIsAddingClients, isEditingNode, setIsEditingNode, isDeletingNode, setIsDeletingNode, activeNode, setActiveNode }}
+        value={{
+          driver,
+          contextMenu,
+          isConvertingToWifi,
+          setIsConvertingToWifi,
+          isAddingClients,
+          setIsAddingClients,
+          isEditingNode,
+          setIsEditingNode,
+          isDeletingNode,
+          setIsDeletingNode,
+          activeNode,
+          setActiveNode,
+        }}
       >
         <ContextMenuComponent />
         <DeleteNodeComponent />

@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { DashboardContext } from "../dashboard.context";
+import { DashboardContext } from "../context";
 import { WifiContextMenu } from "./context-menu/wifi.context-menu";
 
 export const ContextMenuComponent = () => {
