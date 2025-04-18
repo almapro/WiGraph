@@ -1,10 +1,6 @@
 import type {
   Node,
-  BuiltInNode,
-  OnNodesChange,
-  OnEdgesChange,
-  Edge,
-  OnConnect,
+  BuiltInNode
 } from "@xyflow/react";
 
 export type PositionLoggerNode = Node<{ label: string }, "position-logger">;
@@ -12,15 +8,6 @@ export type WifiNode = Node<Wifi, "wifi">;
 export type ClientNode = Node<Client, "client">;
 export type AppNode = BuiltInNode | PositionLoggerNode | WifiNode | ClientNode;
 
-export type AppState = {
-  nodes: AppNode[];
-  edges: Edge[];
-  onNodesChange: OnNodesChange<AppNode>;
-  onEdgesChange: OnEdgesChange;
-  onConnect: OnConnect;
-  setNodes: (nodes: AppNode[]) => void;
-  setEdges: (edges: Edge[]) => void;
-};
 
 export type NodeType =
   | "WIFI"
