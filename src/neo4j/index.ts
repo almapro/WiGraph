@@ -15,7 +15,6 @@ export const getNodes = async (
       OPTIONAL MATCH (n2)-[r2]->(w)
       RETURN w, COUNT(r1) > 0 as hasOutgoingRelations, COUNT(r2) > 0 as hasIncomingRelations
     `);
-    console.log(result.records[0]);
     const records: Wifi[] = result.records.map(
       (record) => ({ ...record.toObject().w.properties, incoming_realtions: record.toObject().hasIncomingRelations, outgoing_relations: record.toObject().hasOutgoingRelations })
     );
@@ -43,23 +42,32 @@ export const getNodes = async (
 };
 
 export const deleteNode = async (driver: Driver, node: AppNode) => {
-  console.log(node);
   const session = driver.session();
   const nodeId = node.id;
+  let deletedNodes: AppNode[] = [];
   switch (node.type) {
     case "wifi":
       await session.run(`
         MATCH (w:Wifi {id: $nodeId})
+        WITH w, properties(w) as wProperties
         OPTIONAL MATCH (c:Client)-[r:CONNECTS_TO]->(w)
         DELETE r, w
-      `, { nodeId });
+        RETURN wProperties
+      `, { nodeId }).then(async (result) => {
+        deletedNodes = result.records.map((record) => ({ ...record.toObject().wProperties, type: "wifi" }));
+      });
       break;
     case "client":
       await session.run(`
         MATCH (c:Client {id: $nodeId})
+        WITH c, properties(c) as cProperties
         DELETE c
-      `, { nodeId });
+        RETURN cProperties
+      `, { nodeId }).then(async (result) => {
+        deletedNodes = result.records.map((record) => ({ ...record.toObject().cProperties, type: "client" }));
+      });
       break;
   }
   await session.close();
+  return deletedNodes;
 };

@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { useReactFlow } from "@xyflow/react";
 import { deleteNode } from "../neo4j";
 import { useSnackbar } from "notistack";
+import _ from "lodash";
 
 export const DeleteNodeComponent = () => {
   const { isDeletingNode, setIsDeletingNode, driver, activeNode } = useContext(DashboardContext);
@@ -13,8 +14,8 @@ export const DeleteNodeComponent = () => {
   const handleDelete = async () => { 
     if (!activeNode) return;
     try {
-      await deleteNode(driver, activeNode);
-      setNodes(nodes => nodes.filter(n => n.id !== activeNode.id));
+      const deletedNodes = await deleteNode(driver, activeNode);
+      setNodes(nodes => nodes.filter(n => !_.includes(deletedNodes.map(nn => nn.id), n.id)));
       enqueueSnackbar("Node deleted successfully", { variant: "success" });
       setIsDeletingNode(false);
     } catch (error) {

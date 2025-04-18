@@ -7,13 +7,14 @@ import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { useSnackbar } from "notistack";
 import { AppContext, DashboardContext } from '../../context';
 import { useReactFlow } from "@xyflow/react";
+import { getNodes } from "../../neo4j";
 
 export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
   formRef,
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { setShowAddNode } = useContext(AppContext);
-  const { fitView } = useReactFlow();
+  const { fitView, setNodes } = useReactFlow();
   const { driver } = useContext(DashboardContext);
   const [id, setId] = useState(v4());
   const [essid, setEssid] = useState("");
@@ -30,10 +31,10 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
     );
     setBssid(e.target.value);
   };
-  const handleOnSubmit: React.FormEventHandler = (e) => {
+  const handleOnSubmit: React.FormEventHandler = async (e) => {
     e.preventDefault();
     const session = driver.session();
-    session
+    await session
       .run(
         `CREATE (n:Wifi { id: $id, essid: $essid, bssid: $bssid, probe: $probe, hotspot: $hotspot${password !== "" ? ", password: $password" : ""}${pin !== "" ? ", pin: $pin" : ""} })`,
         _.assign(
@@ -43,7 +44,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
           pin !== "" ? { pin } : {},
         ),
       )
-      .then(() => {
+      .then(async () => {
         enqueueSnackbar("Node added successfully", { variant: "success" });
         setShowAddNode(false);
         setId(v4());
@@ -55,7 +56,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
         setProbe(false);
         setHotspot(false);
         session.close();
-        fitView();
+        await getNodes(driver, setNodes, fitView);
       });
   };
   return (

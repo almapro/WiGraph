@@ -10,15 +10,13 @@ import { FloatingButtonComponent } from "./floating-actions";
 import { useContext } from 'react';
 import { AppContext, DashboardContext } from '../context';
 import { VscDebugDisconnect } from "react-icons/vsc";
-import { FaRotateLeft } from "react-icons/fa6";
+import { FaRotateRight } from "react-icons/fa6";
 import { getNodes } from "../neo4j";
-import { useStore } from "../store";
-import { useShallow } from "zustand/shallow";
+
 export const FloatingActionsComponent = () => {
   const { colorMode, setColorMode, setDriver, setShowAddNode } =
     useContext(AppContext);
-  const { fitView } = useReactFlow();
-  const setNodes = useStore(useShallow((state) => state.setNodes));
+  const { fitView, setNodes } = useReactFlow();
   const { driver } = useContext(DashboardContext);
   return (
     <Panel position="top-right" className="flex flex-col gap-2">
@@ -40,11 +38,16 @@ export const FloatingActionsComponent = () => {
       </FloatingButtonComponent>
       <FloatingButtonComponent
         tooltip="Refresh"
-        onClick={() => {
-          getNodes(driver, setNodes, fitView);
+        onClick={async (e) => {
+          const button = e.currentTarget;
+          button.classList.add('animate-spin');
+          await getNodes(driver, setNodes, fitView);
+          setTimeout(() => {
+            button.classList.remove('animate-spin');
+          }, 1000);
         }}
       >
-        <FaRotateLeft className="m-auto" />
+        <FaRotateRight className="m-auto" />
       </FloatingButtonComponent>
       <FloatingButtonComponent
         tooltip="Import from..."
