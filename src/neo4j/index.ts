@@ -23,8 +23,6 @@ export const getNodes = async (
       },
       data: {
         ...wifi,
-        probe: false,
-        hotspot: false,
         handshakes: [],
         incoming_realtions: true,
         outgoing_relations: true,
@@ -38,4 +36,26 @@ export const getNodes = async (
     console.error("Error fetching nodes:", error);
     throw error;
   }
-}; 
+};
+
+export const deleteNode = async (driver: Driver, node: AppNode) => {
+  console.log(node);
+  const session = driver.session();
+  const nodeId = node.id;
+  switch (node.type) {
+    case "wifi":
+      await session.run(`
+        MATCH (w:Wifi {id: $nodeId})
+        OPTIONAL MATCH (c:Client)-[r:CONNECTS_TO]->(w)
+        DELETE r, w
+      `, { nodeId });
+      break;
+    case "client":
+      await session.run(`
+        MATCH (c:Client {id: $nodeId})
+        DELETE c
+      `, { nodeId });
+      break;
+  }
+  await session.close();
+};

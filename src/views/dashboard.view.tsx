@@ -8,15 +8,17 @@ import {
   useEdgesState,
   type OnConnect,
   BackgroundVariant,
+  useReactFlow,
 } from "@xyflow/react";
 import { Driver } from "neo4j-driver";
-import { useCallback, useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { initialNodes, nodeTypes } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
-import { FloatingActionsComponent } from "../components";
+import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, FloatingActionsComponent } from "../components";
 import { useTitle } from "react-use";
 import { AppContext } from "../app.context";
-import { Wifi } from "../nodes.types";
+import { getNodes } from "../neo4j";
+import { DashboardContext } from "../dashboard.context";
 import { AppNode } from "../nodes/types";
 
 export const DashboardView: React.FC<{ driver: Driver }> = ({ driver }) => {
@@ -28,35 +30,20 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({ driver }) => {
     (connection) => setEdges((edges) => addEdge(connection, edges)),
     [setEdges],
   );
+  const { fitView } = useReactFlow();
   useEffect(() => {
-    driver
-      .session()
-      .run(`MATCH (w:Wifi) RETURN w`)
-      .then((result) => {
-        const records: Wifi[] = result.records.map(
-          (record) => record.toObject().w.properties,
-        );
-        console.log({ records });
-        setNodes(
-          records.map<AppNode>((wifi, i) => ({
-            type: "wifi",
-            id: wifi.id,
-            position: {
-              x: 50 * (i + 1),
-              y: 0,
-            },
-            data: {
-              ...wifi,
-              probe: false,
-              hotspot: false,
-              handshakes: [],
-              incoming_realtions: true,
-              outgoing_relations: true,
-            },
-          })),
-        );
-      });
-  }, [setNodes, driver]);
+    getNodes(driver, setNodes, fitView);
+  }, [setNodes, driver, fitView]);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    node: AppNode;
+  } | null>(null);
+  const [isConvertingToWifi, setIsConvertingToWifi] = useState(false);
+  const [isAddingClients, setIsAddingClients] = useState(false);
+  const [isEditingNode, setIsEditingNode] = useState(false);
+  const [isDeletingNode, setIsDeletingNode] = useState(false);
+  const [activeNode, setActiveNode] = useState<AppNode | null>(null);
   return (
     <ReactFlow
       colorMode={colorMode}
@@ -68,11 +55,29 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({ driver }) => {
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
       fitView
+      onNodeContextMenu={(event, node) => {
+        event.preventDefault();
+        setContextMenu({
+          x: event.clientX,
+          y: event.clientY,
+          node: node,
+        });
+      }}
+      onClick={() => {
+        setContextMenu(null);
+      }}
     >
-      <Background variant={BackgroundVariant.Dots} />
-      <MiniMap />
-      <Controls />
-      <FloatingActionsComponent />
+      <DashboardContext.Provider
+        value={{ driver, contextMenu, isConvertingToWifi, setIsConvertingToWifi, isAddingClients, setIsAddingClients, isEditingNode, setIsEditingNode, isDeletingNode, setIsDeletingNode, activeNode, setActiveNode }}
+      >
+        <ContextMenuComponent />
+        <DeleteNodeComponent />
+        <AddNodeComponent />
+        <Background variant={BackgroundVariant.Dots} />
+        <MiniMap />
+        <Controls />
+        <FloatingActionsComponent />
+      </DashboardContext.Provider>
     </ReactFlow>
   );
 };

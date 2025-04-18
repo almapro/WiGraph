@@ -6,11 +6,12 @@ import type {
   Edge,
   OnConnect,
 } from "@xyflow/react";
-import { Wifi } from "../nodes.types";
+import { Wifi, WifiClient } from "../nodes.types";
 
 export type PositionLoggerNode = Node<{ label: string }, "position-logger">;
 export type WifiNode = Node<Wifi, "wifi">;
-export type AppNode = BuiltInNode | PositionLoggerNode | WifiNode;
+export type ClientNode = Node<WifiClient, "client">;
+export type AppNode = BuiltInNode | PositionLoggerNode | WifiNode | ClientNode;
 
 export type AppState = {
   nodes: AppNode[];

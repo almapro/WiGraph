@@ -14,12 +14,13 @@ import { FaRotateLeft } from "react-icons/fa6";
 import { getNodes } from "../neo4j";
 import { useStore } from "../store";
 import { useShallow } from "zustand/shallow";
-
+import { DashboardContext } from "../dashboard.context";
 export const FloatingActionsComponent = () => {
-  const { colorMode, setColorMode, setDriver, driver, setShowAddNode } =
+  const { colorMode, setColorMode, setDriver, setShowAddNode } =
     useContext(AppContext);
   const { fitView } = useReactFlow();
   const setNodes = useStore(useShallow((state) => state.setNodes));
+  const { driver } = useContext(DashboardContext);
   return (
     <Panel position="top-right" className="flex flex-col gap-2">
       <FloatingButtonComponent
@@ -41,7 +42,7 @@ export const FloatingActionsComponent = () => {
       <FloatingButtonComponent
         tooltip="Refresh"
         onClick={() => {
-          if (driver) getNodes(driver, setNodes, fitView);
+          getNodes(driver, setNodes, fitView);
         }}
       >
         <FaRotateLeft className="m-auto" />

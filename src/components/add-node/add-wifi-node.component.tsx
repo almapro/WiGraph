@@ -1,4 +1,4 @@
-import { Button, Label, TextInput, Tooltip } from "flowbite-react";
+import { Button, HelperText, Label, TextInput, Tooltip } from "flowbite-react";
 import { FC, Ref, useContext, useState } from "react";
 import _ from "lodash";
 import { DashboardContext } from "../../dashboard.context";
@@ -7,13 +7,15 @@ import { FaEye, FaEyeSlash, FaWifi } from "react-icons/fa";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { useSnackbar } from "notistack";
 import { AppContext } from "../../app.context";
+import { useReactFlow } from "@xyflow/react";
 
 export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
   formRef,
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { setShowAddNode } = useContext(AppContext);
-  const { driver, updateGraph } = useContext(DashboardContext);
+  const { fitView } = useReactFlow();
+  const { driver } = useContext(DashboardContext);
   const [id, setId] = useState(v4());
   const [essid, setEssid] = useState("");
   const [bssid, setBssid] = useState("");
@@ -54,7 +56,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
         setProbe(false);
         setHotspot(false);
         session.close();
-        updateGraph();
+        fitView();
       });
   };
   return (
@@ -65,7 +67,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
     >
       <div>
         <div className="mb-2 block">
-          <Label htmlFor="essid" value="ESSID *" />
+          <Label htmlFor="essid">ESSID *</Label>
         </div>
         <TextInput
           required
@@ -77,7 +79,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
       </div>
       <div>
         <div className="mb-2 block">
-          <Label htmlFor="bssid" value={`BSSID${probe ? "" : " *"}`} />
+          <Label htmlFor="bssid">BSSID{probe ? "" : " *"}</Label>
         </div>
         <TextInput
           required={!probe}
@@ -85,13 +87,17 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
           placeholder="XX:XX:XX:XX:XX:XX"
           value={bssid}
           color={bssidError ? "failure" : "gray"}
-          helperText={bssidError ? "BSSID must be formatted properly" : ""}
           onChange={handleBssidChange}
         />
+        <HelperText
+          color={bssidError ? "failure" : "gray"}
+        >
+          {bssidError ? "BSSID must be formatted properly" : ""}
+        </HelperText>
       </div>
       <div>
         <div className="mb-2 block">
-          <Label htmlFor="password" value="Password" />
+          <Label htmlFor="password">Password</Label>
         </div>
         <div className="flex gap-2">
           <TextInput
@@ -117,7 +123,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
       </div>
       <div>
         <div className="mb-2 block">
-          <Label htmlFor="pin" value="PIN" />
+          <Label htmlFor="pin">WPS PIN</Label>
         </div>
         <TextInput
           id="pin"
@@ -130,13 +136,13 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
       </div>
       <div>
         <div className="mb-2 block">
-          <Label value="Type" />
+          <Label htmlFor="type">Type</Label>
         </div>
         <div className="flex gap-2">
           <Tooltip content="WiFi" placement="bottom">
             <Button
               disabled={!probe && !hotspot}
-              className="flex size-12"
+              className="flex size-12 w-full"
               onClick={() => {
                 setProbe(false);
                 setHotspot(false);
@@ -147,7 +153,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
           </Tooltip>
           <Tooltip content="Probe" placement="bottom">
             <Button
-              className="flex size-12"
+              className="flex size-12 w-full"
               disabled={probe}
               onClick={() => {
                 setProbe(true);
@@ -159,7 +165,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
           </Tooltip>
           <Tooltip content="Hotspot" placement="bottom">
             <Button
-              className="flex size-12"
+              className="flex size-12 w-full"
               disabled={hotspot}
               onClick={() => {
                 setProbe(false);
