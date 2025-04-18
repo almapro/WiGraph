@@ -5,7 +5,7 @@ import { v4 } from "uuid";
 import { FaEye, FaEyeSlash, FaWifi } from "react-icons/fa";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { useSnackbar } from "notistack";
-import { AppContext, DashboardContext } from '../../context';
+import { DashboardContext } from '../../context';
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../../neo4j";
 
@@ -13,9 +13,8 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
   formRef,
 }) => {
   const { enqueueSnackbar } = useSnackbar();
-  const { setShowAddNode } = useContext(AppContext);
   const { fitView, setNodes } = useReactFlow();
-  const { driver } = useContext(DashboardContext);
+  const { driver, setShowAddNode } = useContext(DashboardContext);
   const [id, setId] = useState(v4());
   const [essid, setEssid] = useState("");
   const [bssid, setBssid] = useState("");

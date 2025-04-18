@@ -29,7 +29,6 @@ export default function App() {
   }, [colorMode, setStoredColorMode, setMode]);
   const [driver, setDriver] = useState<Driver | null>(null);
   const [autoConnect, setAutoConnect] = useState(true);
-  const [showAddNode, setShowAddNode] = useState(false);
   return (
     <AppContext.Provider
       value={{
@@ -39,8 +38,6 @@ export default function App() {
         setColorMode,
         autoConnect,
         setAutoConnect,
-        showAddNode,
-        setShowAddNode,
       }}
     >
       <Flowbite theme={theme}>

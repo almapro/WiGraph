@@ -39,8 +39,8 @@ export type Wifi = {
   hotspot: boolean;
   probe: boolean;
   handshakes: Handshake[];
-  incoming_realtions: boolean;
-  outgoing_relations: boolean;
+  incoming_relations: number;
+  outgoing_relations: number;
 };
 
 export type Router = {

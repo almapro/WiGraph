@@ -13,10 +13,10 @@ export const getNodes = async (
       MATCH (w:Wifi)
       OPTIONAL MATCH (w)-[r1]->(n1)
       OPTIONAL MATCH (n2)-[r2]->(w)
-      RETURN w, COUNT(r1) > 0 as hasOutgoingRelations, COUNT(r2) > 0 as hasIncomingRelations
+      RETURN w, COUNT(r1) as outgoingRelations, COUNT(r2) as incomingRelations
     `);
     const records: Wifi[] = result.records.map(
-      (record) => ({ ...record.toObject().w.properties, incoming_realtions: record.toObject().hasIncomingRelations, outgoing_relations: record.toObject().hasOutgoingRelations })
+      (record) => ({ ...record.toObject().w.properties, incoming_relations: record.toObject().incomingRelations, outgoing_relations: record.toObject().outgoingRelations })
     );
 
     const nodes = records.map<AppNode>((wifi, i) => ({

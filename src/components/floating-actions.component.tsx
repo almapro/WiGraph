@@ -14,10 +14,10 @@ import { FaRotateRight } from "react-icons/fa6";
 import { getNodes } from "../neo4j";
 
 export const FloatingActionsComponent = () => {
-  const { colorMode, setColorMode, setDriver, setShowAddNode } =
+  const { colorMode, setColorMode, setDriver } =
     useContext(AppContext);
   const { fitView, setNodes } = useReactFlow();
-  const { driver } = useContext(DashboardContext);
+  const { driver, setShowAddNode } = useContext(DashboardContext);
   return (
     <Panel position="top-right" className="flex flex-col gap-2">
       <FloatingButtonComponent

@@ -43,6 +43,7 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   const [isEditingNode, setIsEditingNode] = useState(false);
   const [isDeletingNode, setIsDeletingNode] = useState(false);
   const [activeNode, setActiveNode] = useState<AppNode | null>(null);
+  const [showAddNode, setShowAddNode] = useState(false);
   return (
     <ReactFlow
       colorMode={colorMode}
@@ -80,6 +81,8 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
           setIsDeletingNode,
           activeNode,
           setActiveNode,
+        showAddNode,
+        setShowAddNode,
         }}
       >
         <ContextMenuComponent />

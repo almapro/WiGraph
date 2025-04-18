@@ -19,6 +19,8 @@ export type DashboardContextProps = {
     setIsDeletingNode: (isDeletingNode: boolean) => void;
     activeNode: AppNode | null;
     setActiveNode: (activeNode: AppNode | null) => void;
+    showAddNode: boolean
+    setShowAddNode: (showAddNode: boolean) => void
 };
 
 export const DashboardContext = createContext<DashboardContextProps>({
@@ -34,4 +36,6 @@ export const DashboardContext = createContext<DashboardContextProps>({
     setIsDeletingNode: () => {},
     activeNode: null,
     setActiveNode: () => {},
+    showAddNode: false,
+    setShowAddNode: () => { },
 });
