@@ -1,7 +1,6 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { FaWifi } from "react-icons/fa";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
-
 import { type WifiNode } from "./types";
 import { Wifi } from "../nodes.types";
 import { Tooltip } from "flowbite-react";

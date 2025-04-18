@@ -107,7 +107,7 @@ export const ConnectView = () => {
       >
         <div>
           <div className="mb-2 block">
-            <Label htmlFor="url" value="URL" />
+            <Label htmlFor="url">URL</Label>
           </div>
           <TextInput
             required
@@ -118,7 +118,7 @@ export const ConnectView = () => {
         </div>
         <div>
           <div className="mb-2 block">
-            <Label htmlFor="username" value="Username" />
+            <Label htmlFor="username">Username</Label>
           </div>
           <TextInput
             required
@@ -129,7 +129,7 @@ export const ConnectView = () => {
         </div>
         <div>
           <div className="mb-2 block">
-            <Label htmlFor="password" value="Password" />
+            <Label htmlFor="password">Password</Label>
           </div>
           <div className="flex gap-2">
             <TextInput
@@ -155,7 +155,7 @@ export const ConnectView = () => {
         </div>
         <div>
           <div className="mb-2 block">
-            <Label htmlFor="database" value="Database" />
+            <Label htmlFor="database">Database</Label>
           </div>
           <TextInput
             required

@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { ColorMode, ReactFlowProvider } from "@xyflow/react";
 import { useLocalStorage } from "react-use";
-
 import "@xyflow/react/dist/style.css";
-
 import { RestrictedRoute } from "./components";
 import { ThemeProvider as Flowbite, useThemeMode } from "flowbite-react";
 import { Route, Routes } from "react-router";
