@@ -26,13 +26,13 @@ export const AddNodeComponent = () => {
       <ModalHeader>Add New Node</ModalHeader>
         <ModalBody className="flex flex-col gap-4">
           <div className="flex gap-4">
-            <Tooltip content="Add a new WiFi access point or probe">
-              <Button disabled={showAddType === "wifi"} onClick={() => setShowAddType("wifi")} className={`flex ${showAddType === "wifi" ? "bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400" : ""}`}>
+            <Tooltip content="Wifi">
+              <Button disabled={showAddType === "wifi"} onClick={() => setShowAddType("wifi")} className="flex">
                 <FaWifi className="w-4 h-4 m-auto" />
               </Button>
             </Tooltip>
-            <Tooltip content="Add a new client device">
-              <Button disabled={showAddType === "client"} onClick={() => setShowAddType("client")} className={`flex ${showAddType === "client" ? "bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400" : ""}`}>
+            <Tooltip content="Client">
+              <Button disabled={showAddType === "client"} onClick={() => setShowAddType("client")} className="flex">
                 <FaLaptop className="w-4 h-4 m-auto" />
               </Button>
             </Tooltip>

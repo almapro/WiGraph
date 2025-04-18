@@ -174,7 +174,7 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
               <Tooltip content="Laptop">
                 <Button
                   size="sm" 
-                  color={client.laptop ? "blue" : "gray"}
+                  disabled={client.laptop}
                   onClick={() => {
                     const newClients = [...clients];
                     newClients[index] = {
@@ -193,7 +193,7 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
               <Tooltip content="Desktop">
                 <Button
                   size="sm"
-                  color={client.desktop ? "blue" : "gray"}
+                  disabled={client.desktop}
                   onClick={() => {
                     const newClients = [...clients];
                     newClients[index] = {
@@ -212,7 +212,7 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
               <Tooltip content="Mobile Device">
                 <Button
                   size="sm"
-                  color={client.mobile ? "blue" : "gray"}
+                  disabled={client.mobile}
                   onClick={() => {
                     const newClients = [...clients];
                     newClients[index] = { 
@@ -231,7 +231,7 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
               <Tooltip content="Tablet">
                 <Button
                   size="sm"
-                  color={client.tablet ? "blue" : "gray"}
+                  disabled={client.tablet}
                   onClick={() => {
                     const newClients = [...clients];
                     newClients[index] = {
