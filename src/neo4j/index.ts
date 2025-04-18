@@ -29,14 +29,14 @@ export const getNodes = async (
         }) as outgoingEdges
     `);
     const records: Wifi[] = result.records.map(
-      (record) => ({ ...record.toObject().w.properties, incoming_relations: record.toObject().incomingRelations, outgoing_relations: record.toObject().outgoingRelations, incoming_edges: record.toObject().incomingEdges, outgoing_edges: record.toObject().outgoingEdges })
+      (record) => ({ ...record.toObject().w.properties, incoming_relations: Number(record.toObject().incomingRelations), outgoing_relations: Number(record.toObject().outgoingRelations), incoming_edges: record.toObject().incomingEdges, outgoing_edges: record.toObject().outgoingEdges })
     );
 
     const nodes = records.map<AppNode>((wifi, i) => ({
       type: "wifi",
       id: wifi.id,
       position: {
-        x: 50 * (i + 1),
+        x: 50 * (i + 1) + (i > 0 ? Math.max(records[i].outgoing_relations, records[i].incoming_relations) * 25 : 0),
         y: 0,
       },
       data: {
@@ -65,7 +65,7 @@ export const getNodes = async (
     `);
 
     const clientsRecords: Client[] = clients.records.map(
-      (record) => ({ ...record.toObject().c.properties, incoming_relations: record.toObject().incomingRelations, outgoing_relations: record.toObject().outgoingRelations, incoming_edges: record.toObject().incomingEdges, outgoing_edges: record.toObject().outgoingEdges })
+      (record) => ({ ...record.toObject().c.properties, incoming_relations: Number(record.toObject().incomingRelations), outgoing_relations: Number(record.toObject().outgoingRelations), incoming_edges: record.toObject().incomingEdges, outgoing_edges: record.toObject().outgoingEdges })
     );
 
     const clientsNodes = clientsRecords.map<AppNode>((client, i) => ({
@@ -85,7 +85,7 @@ export const getNodes = async (
                 id: `${edge.source}-${edge.target}`,
                 source: edge.source,
                 target: edge.target,
-                type: edge.type
+                type: "default"
           })))
         });
     clientsRecords.map((record) => {
@@ -93,7 +93,7 @@ export const getNodes = async (
             id: `${edge.source}-${edge.target}`,
             source: edge.source,
             target: edge.target,
-            type: edge.type
+            type: "default"
         })))
     })
     setEdges(edges);
