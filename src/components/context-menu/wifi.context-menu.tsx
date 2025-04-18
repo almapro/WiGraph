@@ -31,7 +31,7 @@ export const WifiContextMenu: FC<{ node: AppNode }> = ({ node }) => {
             onClick={() => setIsAddingClients(true)}
           >
             <FaLaptop className="w-4 h-4" />
-            Add Devices
+            Add Clients
           </button>
         )}
         <button 

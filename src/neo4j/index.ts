@@ -9,9 +9,15 @@ export const getNodes = async (
 ) => {
   try {
     const session = driver.session();
-    const result = await session.run(`MATCH (w:Wifi) RETURN w`);
+    const result = await session.run(`
+      MATCH (w:Wifi)
+      OPTIONAL MATCH (w)-[r1]->(n1)
+      OPTIONAL MATCH (n2)-[r2]->(w)
+      RETURN w, COUNT(r1) > 0 as hasOutgoingRelations, COUNT(r2) > 0 as hasIncomingRelations
+    `);
+    console.log(result.records[0]);
     const records: Wifi[] = result.records.map(
-      (record) => record.toObject().w.properties
+      (record) => ({ ...record.toObject().w.properties, incoming_realtions: record.toObject().hasIncomingRelations, outgoing_relations: record.toObject().hasOutgoingRelations })
     );
 
     const nodes = records.map<AppNode>((wifi, i) => ({
@@ -23,9 +29,7 @@ export const getNodes = async (
       },
       data: {
         ...wifi,
-        handshakes: [],
-        incoming_realtions: true,
-        outgoing_relations: true,
+        handshakes: []
       },
     }));
 
