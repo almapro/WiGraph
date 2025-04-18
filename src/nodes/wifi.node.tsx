@@ -1,8 +1,7 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { FaWifi } from "react-icons/fa";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
-import { type WifiNode } from "./types";
-import { Wifi } from "../nodes.types";
+import { type WifiNode, Wifi } from "./types";
 import { Tooltip } from "flowbite-react";
 
 const WifiNodeIcon: React.FC<{ data: Wifi }> = ({ data }) => {
@@ -14,7 +13,7 @@ const WifiNodeIcon: React.FC<{ data: Wifi }> = ({ data }) => {
 export function WifiNode({ data }: NodeProps<WifiNode>) {
   return (
     <Tooltip
-      content={`${data.essid === "" ? "(hidden)" : data.essid} \u200E-\u200E ${data.bssid}`}
+      content={`${data.essid === "" ? "(hidden)" : data.essid} \u200E-\u200E ${data.bssid && data.bssid !== "" ? data.bssid : "(unknown)"}`}
       className="text-sm text-nowrap"
     >
       <div className="flex size-fit rounded-lg border-1 border-black bg-white p-2 hover:shadow-[0_1px_4px_1px_rgba(0,0,0,0.08)] dark:border-zinc-700 dark:bg-neutral-800 dark:text-white dark:hover:shadow-[0_1px_4px_1px_rgba(255,255,255,0.08)]">
@@ -23,10 +22,10 @@ export function WifiNode({ data }: NodeProps<WifiNode>) {
         </div>
         {data.incoming_relations > 0 && (
           <>
-            {Array.from({ length: Number(data.incoming_relations) }).map((_, index) => (
+            {data.incoming_edges.map((edge) => (
               <Handle
-                key={`target-${index}`}
-                id={`target-${index}`}
+                key={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
+                id={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
                 type="target"
                 position={Position.Bottom}
               />
@@ -35,10 +34,10 @@ export function WifiNode({ data }: NodeProps<WifiNode>) {
         )}
         {data.outgoing_relations > 0 && (
           <>
-            {Array.from({ length: Number(data.outgoing_relations) }).map((_, index) => (
+            {data.outgoing_edges.map((edge) => (
               <Handle
-                key={`source-${index}`}
-                id={`source-${index}`}
+                key={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
+                id={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
                 type="source"
                 position={Position.Top}
               />

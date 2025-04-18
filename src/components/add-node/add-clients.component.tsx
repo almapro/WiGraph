@@ -1,4 +1,4 @@
-import { HelperText, Label, Select, TextInput, Button } from "flowbite-react";
+import { HelperText, Label, Select, TextInput, Button, Tooltip } from "flowbite-react";
 import { FC, Ref, useContext, useState } from "react";
 import { v4 } from "uuid";
 import { useSnackbar } from "notistack";
@@ -6,13 +6,17 @@ import { DashboardContext } from '../../context';
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../../neo4j";
 import { WifiNode } from "../../nodes/types";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaDesktop, FaLaptop, FaMobileAlt, FaPlus, FaTabletAlt, FaTrash } from "react-icons/fa";
 
 interface ClientFormData {
   id: string;
   name: string;
   macAddress: string;
   ipAddress: string;
+  mobile: boolean;
+  laptop: boolean;
+  tablet: boolean;
+  desktop: boolean;
 }
 
 export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
@@ -20,14 +24,18 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { getNodes: gNodes } = useReactFlow();
-  const { fitView, setNodes } = useReactFlow();
+  const { fitView, setNodes, setEdges } = useReactFlow();
   const { driver, setShowAddNode } = useContext(DashboardContext);
   const [wifi, setWifi] = useState("");
   const [clients, setClients] = useState<ClientFormData[]>([{
     id: v4(),
     name: "",
     macAddress: "",
-    ipAddress: ""
+    ipAddress: "",
+    mobile: false,
+    laptop: true,
+    tablet: false,
+    desktop: false
   }]);
 
   const handleMacAddressChange = (index: number, value: string) => {
@@ -44,7 +52,11 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
       id: v4(),
       name: "",
       macAddress: "",
-      ipAddress: ""
+      ipAddress: "",
+      mobile: false,
+      laptop: true,
+      tablet: false,
+      desktop: false
     }]);
   };
 
@@ -75,7 +87,11 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
         CREATE (c:Client {
           id: client.id, 
           name: client.name, 
-          macAddress: client.macAddress
+          macAddress: client.macAddress,
+          mobile: client.mobile,
+          laptop: client.laptop,
+          tablet: client.tablet,
+          desktop: client.desktop
         })
         WITH c, w, client
         FOREACH (_ IN CASE WHEN client.ipAddress IS NOT NULL AND client.ipAddress <> '' THEN [1] ELSE [] END |
@@ -98,7 +114,7 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
       });
 
       enqueueSnackbar(`${clients.length} client(s) added successfully`, { variant: "success" });
-      await getNodes(driver, setNodes, fitView);
+      await getNodes(driver, setNodes, setEdges, fitView);
       setShowAddNode(false);
     } catch (error) {
       console.error(error);
@@ -151,6 +167,87 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
               placeholder="Enter client name"
               required
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>Device Type</Label>
+            <div className="flex gap-2">
+              <Tooltip content="Laptop">
+                <Button
+                  size="sm" 
+                  color={client.laptop ? "blue" : "gray"}
+                  onClick={() => {
+                    const newClients = [...clients];
+                    newClients[index] = {
+                      ...newClients[index],
+                      mobile: false,
+                      laptop: true,
+                      tablet: false,
+                      desktop: false
+                    };
+                    setClients(newClients);
+                  }}
+                >
+                  <FaLaptop className="w-4 h-4" />
+                </Button>
+              </Tooltip>
+              <Tooltip content="Desktop">
+                <Button
+                  size="sm"
+                  color={client.desktop ? "blue" : "gray"}
+                  onClick={() => {
+                    const newClients = [...clients];
+                    newClients[index] = {
+                      ...newClients[index],
+                      mobile: false,
+                      laptop: false,
+                      tablet: false,
+                      desktop: true
+                    };
+                    setClients(newClients);
+                  }}
+                >
+                  <FaDesktop className="w-4 h-4" />
+                </Button>
+              </Tooltip>
+              <Tooltip content="Mobile Device">
+                <Button
+                  size="sm"
+                  color={client.mobile ? "blue" : "gray"}
+                  onClick={() => {
+                    const newClients = [...clients];
+                    newClients[index] = { 
+                      ...newClients[index], 
+                      mobile: true,
+                      laptop: false,
+                      tablet: false,
+                      desktop: false
+                    };
+                    setClients(newClients);
+                  }}
+                >
+                  <FaMobileAlt className="w-4 h-4" />
+                </Button>
+              </Tooltip>
+              <Tooltip content="Tablet">
+                <Button
+                  size="sm"
+                  color={client.tablet ? "blue" : "gray"}
+                  onClick={() => {
+                    const newClients = [...clients];
+                    newClients[index] = {
+                      ...newClients[index],
+                      mobile: false,
+                      laptop: false,
+                      tablet: true,
+                      desktop: false
+                    };
+                    setClients(newClients);
+                  }}
+                >
+                  <FaTabletAlt className="w-4 h-4" />
+                </Button>
+              </Tooltip>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">

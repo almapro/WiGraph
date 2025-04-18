@@ -16,7 +16,7 @@ import { getNodes } from "../neo4j";
 export const FloatingActionsComponent = () => {
   const { colorMode, setColorMode, setDriver } =
     useContext(AppContext);
-  const { fitView, setNodes } = useReactFlow();
+  const { fitView, setNodes, setEdges } = useReactFlow();
   const { driver, setShowAddNode } = useContext(DashboardContext);
   return (
     <Panel position="top-right" className="flex flex-col gap-2">
@@ -41,7 +41,7 @@ export const FloatingActionsComponent = () => {
         onClick={async (e) => {
           const button = e.currentTarget;
           button.classList.add('animate-spin');
-          await getNodes(driver, setNodes, fitView);
+          await getNodes(driver, setNodes, setEdges, fitView);
           setTimeout(() => {
             button.classList.remove('animate-spin');
           }, 1000);

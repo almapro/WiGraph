@@ -13,7 +13,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
   formRef,
 }) => {
   const { enqueueSnackbar } = useSnackbar();
-  const { fitView, setNodes } = useReactFlow();
+  const { fitView, setNodes, setEdges } = useReactFlow();
   const { driver, setShowAddNode } = useContext(DashboardContext);
   const [id, setId] = useState(v4());
   const [essid, setEssid] = useState("");
@@ -55,7 +55,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
         setProbe(false);
         setHotspot(false);
         session.close();
-        await getNodes(driver, setNodes, fitView);
+        await getNodes(driver, setNodes, setEdges, fitView);
       });
   };
   return (

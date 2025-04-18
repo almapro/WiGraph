@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { DashboardContext } from "../context";
 import { WifiContextMenu } from "./context-menu/wifi.context-menu";
+import { ClientContextMenu } from "./context-menu/client.context-menu";
 
 export const ContextMenuComponent = () => {
   const { contextMenu } = useContext(DashboardContext);
@@ -15,6 +16,7 @@ export const ContextMenuComponent = () => {
       }}
     >
       {contextMenu.node.type === "wifi" && <WifiContextMenu node={contextMenu.node} />}
+      {contextMenu.node.type === "client" && <ClientContextMenu node={contextMenu.node} />}
     </div>
   );
 };

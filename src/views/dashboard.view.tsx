@@ -31,7 +31,7 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   );
   const { fitView } = useReactFlow();
   useEffect(() => {
-    getNodes(driver, setNodes, fitView);
+    getNodes(driver, setNodes, setEdges, fitView);
   }, [setNodes, driver, fitView]);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
