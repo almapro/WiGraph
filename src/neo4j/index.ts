@@ -10,6 +10,39 @@ export const getNodes = async (
 ) => {
   try {
     const session = driver.session();
+    const clients = await session.run(`
+        MATCH (c:Client)
+        OPTIONAL MATCH (c)-[r1]->(n1)
+        OPTIONAL MATCH (n2)-[r2]->(c)
+        RETURN c, 
+            COUNT(r1) as outgoingRelations, 
+            COUNT(r2) as incomingRelations,
+            COLLECT(DISTINCT {
+            source: n2.id,
+            target: c.id,
+            type: TYPE(r2)
+            }) as incomingEdges,
+            COLLECT(DISTINCT {
+            source: c.id,
+            target: n1.id,
+            type: TYPE(r1)
+            }) as outgoingEdges
+    `);
+
+    const clientsRecords: Client[] = clients.records.map(
+        (record) => ({ ...record.toObject().c.properties, incoming_relations: Number(record.toObject().incomingRelations), outgoing_relations: Number(record.toObject().outgoingRelations), incoming_edges: record.toObject().incomingEdges, outgoing_edges: record.toObject().outgoingEdges })
+    );
+
+    const clientsNodes = clientsRecords.map<AppNode>((client, i) => ({
+        type: "client",
+        id: client.id,
+        position: {
+            x: 50 * (i + 1),
+            y: 100,
+        },
+        data: client
+    }));
+
     const result = await session.run(`
       MATCH (w:Wifi)
       OPTIONAL MATCH (w)-[r1]->(n1)
@@ -28,57 +61,40 @@ export const getNodes = async (
           type: TYPE(r1)
         }) as outgoingEdges
     `);
-    const records: Wifi[] = result.records.map(
+    const records = result.records.map<Wifi>(
       (record) => ({ ...record.toObject().w.properties, incoming_relations: Number(record.toObject().incomingRelations), outgoing_relations: Number(record.toObject().outgoingRelations), incoming_edges: record.toObject().incomingEdges, outgoing_edges: record.toObject().outgoingEdges })
     );
 
-    const nodes = records.map<AppNode>((wifi, i) => ({
-      type: "wifi",
-      id: wifi.id,
-      position: {
-        x: 50 * (i + 1) + (i > 0 ? Math.max(records[i].outgoing_relations, records[i].incoming_relations) * 25 : 0),
-        y: 0,
-      },
-      data: {
-        ...wifi,
-        handshakes: []
-      },
-    }));
+    const nodes = records.map<AppNode>((wifi, i) => {
+        // Get all connected client nodes from incoming and outgoing edges
+        const connectedClientIds = [
+            ...wifi.incoming_edges.filter(edge => clientsRecords.some(c => c.id === edge.source)).map(e => e.source),
+            ...wifi.outgoing_edges.filter(edge => clientsRecords.some(c => c.id === edge.target)).map(e => e.target)
+        ];
 
-    const clients = await session.run(`
-      MATCH (c:Client)
-      OPTIONAL MATCH (c)-[r1]->(n1)
-      OPTIONAL MATCH (n2)-[r2]->(c)
-      RETURN c, 
-        COUNT(r1) as outgoingRelations, 
-        COUNT(r2) as incomingRelations,
-        COLLECT(DISTINCT {
-          source: n2.id,
-          target: c.id,
-          type: TYPE(r2)
-        }) as incomingEdges,
-        COLLECT(DISTINCT {
-          source: c.id,
-          target: n1.id,
-          type: TYPE(r1)
-        }) as outgoingEdges
-    `);
-
-    const clientsRecords: Client[] = clients.records.map(
-      (record) => ({ ...record.toObject().c.properties, incoming_relations: Number(record.toObject().incomingRelations), outgoing_relations: Number(record.toObject().outgoingRelations), incoming_edges: record.toObject().incomingEdges, outgoing_edges: record.toObject().outgoingEdges })
-    );
-
-    const clientsNodes = clientsRecords.map<AppNode>((client, i) => ({
-      type: "client",
-      id: client.id,
-      position: {
-        x: client.outgoing_relations > 0 
-          ? nodes.find(n => n.id === client.outgoing_edges[0].target)?.position.x || 50 * (i + 1)
-          : 50 * (i + 1),
-        y: 50,
-      },
-      data: client
-    }));
+        // Find matching client nodes and update their positions
+        connectedClientIds.forEach((clientId) => {
+            const clientNodeIndex = clientsNodes.findIndex(n => n.id === clientId);
+            if (clientNodeIndex !== -1) {
+                // Add vertical spacing between client nodes
+                const clientIndex = connectedClientIds.indexOf(clientId);
+                // Add horizontal spacing between wifi nodes and their clients
+                clientsNodes[clientNodeIndex].position.x = 50 * (i + 1) + (clientIndex * 50);
+            }
+        });
+        return {
+            type: "wifi",
+            id: wifi.id,
+            position: {
+                x: 50 * (i + 1),
+                y: 0,
+            },
+            data: {
+                ...wifi,
+                handshakes: []
+            },
+        }
+    });
 
     setNodes([...nodes, ...clientsNodes]);
     const edges: Edge[] = [];

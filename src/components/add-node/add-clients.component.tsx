@@ -70,6 +70,14 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
     e.preventDefault();
 
     // Validate all MAC addresses
+    // Check for duplicate MAC addresses within the form
+    const macAddresses = clients.map(c => c.macAddress.toLowerCase());
+    const hasDuplicates = macAddresses.length !== new Set(macAddresses).size;
+    if (hasDuplicates) {
+      enqueueSnackbar("Duplicate MAC addresses found", { variant: "error" });
+      return;
+    }
+
     const hasInvalidMac = clients.some(client => 
       !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(client.macAddress)
     );
@@ -82,26 +90,27 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
     try {
       const session = driver.session();
       const query = `
-        MATCH (w:Wifi {id: $wifi}) 
+        MATCH (w:Wifi {id: $wifi})
         UNWIND $clients AS client
-        CREATE (c:Client {
-          id: client.id, 
-          name: client.name, 
-          macAddress: client.macAddress,
-          mobile: client.mobile,
-          laptop: client.laptop,
-          tablet: client.tablet,
-          desktop: client.desktop
-        })
+        MERGE (c:Client {macAddress: client.macAddress})
+        ON CREATE SET 
+          c.id = client.id,
+          c.name = client.name,
+          c.mobile = client.mobile,
+          c.laptop = client.laptop,
+          c.tablet = client.tablet,
+          c.desktop = client.desktop
+        ON MATCH SET
+          c.name = client.name
         WITH c, w, client
         FOREACH (_ IN CASE WHEN client.ipAddress IS NOT NULL AND client.ipAddress <> '' THEN [1] ELSE [] END |
           SET c.ipAddress = client.ipAddress
         )
         FOREACH (_ IN CASE WHEN w.probe = true THEN [1] ELSE [] END |
-          CREATE (c)-[:KNOWS]->(w)
+          MERGE (c)-[:KNOWS]->(w)
         )
         FOREACH (_ IN CASE WHEN w.probe <> true THEN [1] ELSE [] END |
-          CREATE (c)-[:CONNECTS_TO]->(w)
+          MERGE (c)-[:CONNECTS_TO]->(w)
         )
       `;
 

@@ -2,25 +2,25 @@ import { Modal, Button, ModalHeader, ModalBody, ModalFooter } from "flowbite-rea
 import { DashboardContext } from '../context';
 import { useContext } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { deleteNode } from "../neo4j";
+import { deleteNode, getNodes } from "../neo4j";
 import { useSnackbar } from "notistack";
 import _ from "lodash";
 
 export const DeleteNodeComponent = () => {
   const { isDeletingNode, setIsDeletingNode, driver, activeNode } = useContext(DashboardContext);
-  const { setNodes } = useReactFlow();
+  const { setNodes, setEdges, fitView } = useReactFlow();
   const { enqueueSnackbar } = useSnackbar();
 
   const handleDelete = async () => { 
     if (!activeNode) return;
     try {
-      const deletedNodes = await deleteNode(driver, activeNode);
-      setNodes(nodes => nodes.filter(n => !_.includes(deletedNodes.map(nn => nn.id), n.id)));
-      enqueueSnackbar("Node deleted successfully", { variant: "success" });
-      setIsDeletingNode(false);
+        await deleteNode(driver, activeNode);
+        await getNodes(driver, setNodes, setEdges, fitView);
+        enqueueSnackbar("Node deleted successfully", { variant: "success" });
+        setIsDeletingNode(false);
     } catch (error) {
-      console.error(error);
-      enqueueSnackbar("Failed to delete node", { variant: "error" });
+        console.error(error);
+        enqueueSnackbar("Failed to delete node", { variant: "error" });
     }
   };
 
