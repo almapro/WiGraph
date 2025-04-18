@@ -72,7 +72,9 @@ export const getNodes = async (
       type: "client",
       id: client.id,
       position: {
-        x: 50 * (i + 1),
+        x: client.outgoing_relations > 0 
+          ? nodes.find(n => n.id === client.outgoing_edges[0].target)?.position.x || 50 * (i + 1)
+          : 50 * (i + 1),
         y: 50,
       },
       data: client

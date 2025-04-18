@@ -18,7 +18,7 @@ import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, FloatingAc
 import { useTitle } from "react-use";
 import { AppContext, DashboardContext } from "../context";
 import { getNodes } from "../neo4j";
-import { AppNode } from "../nodes/types";
+import { AppNode } from "../nodes";
 
 export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   useTitle("WiGraph - Dashboard");
