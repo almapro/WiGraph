@@ -1,7 +1,7 @@
 import { Driver } from "neo4j-driver";
 import { createContext } from "react";
 import { AppNode } from "../nodes/types";
-import { Edge } from "@xyflow/react";
+import { Connection, Edge } from "@xyflow/react";
 
 export type DashboardContextProps = {
     driver: Driver;
@@ -28,6 +28,10 @@ export type DashboardContextProps = {
     setRelationToDelete: (relationToDelete: Edge | null) => void;
     selectedEdge: Edge | null;
     setSelectedEdge: (selectedEdge: Edge | null) => void;
+    showAddRelation: boolean;
+    setShowAddRelation: (showAddRelation: boolean) => void;
+    relationToAdd: Connection | null;
+    setRelationToAdd: (relationToAdd: Connection | null) => void;
 };
 
 export const DashboardContext = createContext<DashboardContextProps>({
@@ -51,4 +55,8 @@ export const DashboardContext = createContext<DashboardContextProps>({
     setRelationToDelete: () => {},
     selectedEdge: null,
     setSelectedEdge: () => {},
+    showAddRelation: false,
+    setShowAddRelation: () => {},
+    relationToAdd: null,
+    setRelationToAdd: () => {},
 });

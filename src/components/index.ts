@@ -5,3 +5,4 @@ export * from './add-node.component';
 export * from './context-menu.component';
 export * from './delete-node.component';
 export * from './delete-relation.component';
+export * from './add-relation.component';

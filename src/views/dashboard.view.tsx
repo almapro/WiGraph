@@ -3,7 +3,6 @@ import {
   Background,
   Controls,
   MiniMap,
-  addEdge,
   useNodesState,
   useEdgesState,
   type OnConnect,
@@ -11,12 +10,13 @@ import {
   useReactFlow,
   Edge,
   MarkerType,
+  Connection,
 } from "@xyflow/react";
 import { Driver } from "neo4j-driver";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { initialNodes, nodeTypes } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
-import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent } from "../components";
+import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent } from "../components";
 import { useTitle } from "react-use";
 import { AppContext, DashboardContext } from "../context";
 import { getNodes } from "../neo4j";
@@ -27,9 +27,14 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   const { colorMode } = useContext(AppContext);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [showAddRelation, setShowAddRelation] = useState(false);
+  const [relationToAdd, setRelationToAdd] = useState<Connection | null>(null);
   const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((edges) => addEdge(connection, edges)),
-    [setEdges],
+    (connection) => {
+      setRelationToAdd(connection);
+      setShowAddRelation(true);
+    },
+    [setRelationToAdd, setShowAddRelation],
   );
   const { fitView } = useReactFlow();
   useEffect(() => {
@@ -80,6 +85,10 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
         setRelationToDelete,
         selectedEdge,
         setSelectedEdge,
+        showAddRelation,
+        setShowAddRelation,
+        relationToAdd,
+        setRelationToAdd,
       }}
     >
       <ReactFlow
@@ -116,6 +125,7 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
         <DeleteNodeComponent />
         <DeleteRelationComponent />
         <AddNodeComponent />
+        <AddRelationComponent />
         <Background variant={BackgroundVariant.Dots} />
         <MiniMap />
         <Controls />
