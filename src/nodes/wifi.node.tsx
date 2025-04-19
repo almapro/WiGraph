@@ -39,7 +39,7 @@ export function WifiNode({ data }: NodeProps<WifiNode>) {
             id={`${data.id}-source`}
             type="source"
             position={Position.Top}
-            className={`${data.outgoing_relations > 0 || potinationalSource || showHandles ? "" : "opacity-0"}`}
+            className={`${!data.probe && (data.outgoing_relations > 0 || potinationalSource || showHandles) ? "" : "opacity-0"}`}
           />
       </div>
     </Tooltip>
