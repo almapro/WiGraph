@@ -1,4 +1,4 @@
-import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { Handle, Position, type NodeProps, useConnection } from "@xyflow/react";
 import { FaWifi } from "react-icons/fa";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { PiPrinterFill } from "react-icons/pi";
@@ -13,6 +13,9 @@ const WifiNodeIcon: React.FC<{ data: Wifi }> = ({ data }) => {
 };
 
 export function WifiNode({ data }: NodeProps<WifiNode>) {
+  const connection = useConnection();
+  const potinationalTarget = connection.inProgress && connection.toPosition === Position.Bottom && connection.fromNode?.type === "client";
+  const potinationalSource = connection.inProgress && connection.toPosition === Position.Top && connection.fromNode?.type === "router" && !data.probe && !data.hotspot;
   return (
     <Tooltip
       content={`${data.essid === "" ? "(hidden)" : data.essid} \u200E-\u200E ${data.bssid && data.bssid !== "" ? data.bssid : "(unknown)"}`}
@@ -22,29 +25,19 @@ export function WifiNode({ data }: NodeProps<WifiNode>) {
         <div className="m-auto flex gap-2">
           <WifiNodeIcon data={data} />
         </div>
-        {data.incoming_relations > 0 && (
-          <>
-            {data.incoming_edges.map((edge) => (
-              <Handle
-                key={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
-                id={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
-                type="target"
-                position={Position.Bottom}
-              />
-            ))}
-          </>
+        {(data.incoming_relations > 0 || potinationalTarget) && (
+          <Handle
+            id={`${data.id}-target`}
+            type="target"
+            position={Position.Bottom}
+          />
         )}
-        {data.outgoing_relations > 0 && (
-          <>
-            {data.outgoing_edges.map((edge) => (
-              <Handle
-                key={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
-                id={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
-                type="source"
-                position={Position.Top}
-              />
-            ))}
-          </>
+        {(data.outgoing_relations > 0 || potinationalSource) && (
+          <Handle
+            id={`${data.id}-source`}
+            type="source"
+            position={Position.Top}
+          />
         )}
       </div>
     </Tooltip>

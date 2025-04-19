@@ -1,6 +1,6 @@
 import { Driver } from "neo4j-driver";
 import { createContext } from "react";
-import { AppNode } from "../nodes/types";
+import { AppNode, NodeType } from "../nodes/types";
 import { Connection, Edge } from "@xyflow/react";
 
 export type DashboardContextProps = {
@@ -12,8 +12,8 @@ export type DashboardContextProps = {
     } | null;
     showConvertingToWifi: boolean;
     setShowConvertingToWifi: (showConvertingToWifi: boolean) => void;
-    showAddingClients: boolean;
-    setShowAddingClients: (showAddingClients: boolean) => void;
+    showAddingClientsToWifi: boolean;
+    setShowAddingClientsToWifi: (showAddingClientsToWifi: boolean) => void;
     showEditingNode: boolean;
     setShowEditingNode: (showEditingNode: boolean) => void;
     showDeleteNode: boolean;
@@ -22,6 +22,8 @@ export type DashboardContextProps = {
     setActiveNode: (activeNode: AppNode | null) => void;
     showAddNode: boolean
     setShowAddNode: (showAddNode: boolean) => void
+    showAddType: NodeType
+    setShowAddType: (showAddType: NodeType) => void
     showDeleteRelation: boolean;
     setShowDeleteRelation: (showDeleteRelation: boolean) => void;
     relationToDelete: Edge | null;
@@ -39,8 +41,8 @@ export const DashboardContext = createContext<DashboardContextProps>({
     contextMenu: null,
     showConvertingToWifi: false,
     setShowConvertingToWifi: () => {},
-    showAddingClients: false,
-    setShowAddingClients: () => {},
+    showAddingClientsToWifi: false,
+    setShowAddingClientsToWifi: () => {},
     showEditingNode: false,
     setShowEditingNode: () => {},
     showDeleteNode: false,
@@ -49,6 +51,8 @@ export const DashboardContext = createContext<DashboardContextProps>({
     setActiveNode: () => {},
     showAddNode: false,
     setShowAddNode: () => { },
+    showAddType: "WIFI",
+    setShowAddType: () => { },
     showDeleteRelation: false,
     setShowDeleteRelation: () => {},
     relationToDelete: null,

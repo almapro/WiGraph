@@ -20,7 +20,7 @@ import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, DeleteRela
 import { useTitle } from "react-use";
 import { AppContext, DashboardContext } from "../context";
 import { getNodes } from "../neo4j";
-import { AppNode } from "../nodes";
+import { AppNode, NodeType } from "../nodes";
 
 export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   useTitle("WiGraph - Dashboard");
@@ -51,6 +51,7 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   const [showDeleteNode, setShowDeleteNode] = useState(false);
   const [activeNode, setActiveNode] = useState<AppNode | null>(null);
   const [showAddNode, setShowAddNode] = useState(false);
+  const [showAddType, setShowAddType] = useState<NodeType>("WIFI");
   const [showDeleteRelation, setShowDeleteRelation] = useState(false);
   const [relationToDelete, setRelationToDelete] = useState<Edge | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
@@ -79,6 +80,8 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
         setActiveNode,
         showAddNode,
         setShowAddNode,
+        showAddType,
+        setShowAddType,
         showDeleteRelation,
         setShowDeleteRelation,
         relationToDelete,

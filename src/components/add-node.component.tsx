@@ -1,13 +1,12 @@
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Tooltip } from "flowbite-react";
-import { createRef, useContext, useState } from "react";
+import { createRef, useContext } from "react";
 import { DashboardContext } from "../context";
-import { AddClientsComponent, AddWifiNodeComponent } from "./add-node";
+import { AddClientComponent, AddWifiNodeComponent } from "./add-node";
 import { FaLaptop, FaWifi } from "react-icons/fa";
 
 export const AddNodeComponent = () => {
-  const { showAddNode, setShowAddNode } = useContext(DashboardContext);
+  const { showAddNode, setShowAddNode, showAddType, setShowAddType } = useContext(DashboardContext);
   const formRef = createRef<HTMLFormElement>();
-  const [showAddType, setShowAddType] = useState<"wifi" | "client">("wifi");
 
   const handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -18,7 +17,7 @@ export const AddNodeComponent = () => {
 
   const handleCancel = () => {
     setShowAddNode(false);
-    setShowAddType("wifi");
+    setShowAddType("WIFI");
   };
 
   return (
@@ -27,21 +26,21 @@ export const AddNodeComponent = () => {
         <ModalBody className="flex flex-col gap-4">
           <div className="flex gap-4">
             <Tooltip content="Wifi">
-              <Button disabled={showAddType === "wifi"} onClick={() => setShowAddType("wifi")} className="flex">
+              <Button disabled={showAddType === "WIFI"} onClick={() => setShowAddType("WIFI")} className="flex">
                 <FaWifi className="w-4 h-4 m-auto" />
               </Button>
             </Tooltip>
             <Tooltip content="Client">
-              <Button disabled={showAddType === "client"} onClick={() => setShowAddType("client")} className="flex">
+              <Button disabled={showAddType === "CLIENT"} onClick={() => setShowAddType("CLIENT")} className="flex">
                 <FaLaptop className="w-4 h-4 m-auto" />
               </Button>
             </Tooltip>
           </div>
-          {showAddType === "wifi" && (
+          {showAddType === "WIFI" && (
             <AddWifiNodeComponent formRef={formRef} />
           )}
-          {showAddType === "client" && (
-            <AddClientsComponent formRef={formRef} />
+          {showAddType === "CLIENT" && (
+            <AddClientComponent formRef={formRef} />
           )}
         </ModalBody>
         <ModalFooter>
