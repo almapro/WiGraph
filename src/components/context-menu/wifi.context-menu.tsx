@@ -4,7 +4,7 @@ import { AppNode, WifiNode } from "../../nodes/types";
 import { DashboardContext } from "../../context";
 
 export const WifiContextMenu: FC<{ node: AppNode }> = ({ node }) => {
-  const { setShowConvertingToWifi, setShowAddingClients, setShowEditingNode, setShowDeleteNode, setActiveNode } = useContext(DashboardContext);
+  const { setShowConvertingToWifi, setShowAddingClientsToWifi, setShowEditingNode, setShowDeleteNode, setActiveNode } = useContext(DashboardContext);
 
   const isWifiNode = (node: AppNode): node is WifiNode => {
     return node.type === 'wifi';
@@ -28,7 +28,7 @@ export const WifiContextMenu: FC<{ node: AppNode }> = ({ node }) => {
         {(node.data.hotspot || !node.data.probe) && (
           <button 
             className="w-full px-4 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-            onClick={() => setShowAddingClients(true)}
+            onClick={() => setShowAddingClientsToWifi(true)}
           >
             <FaLaptop className="w-4 h-4" />
             Add Clients
