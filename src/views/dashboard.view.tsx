@@ -54,7 +54,8 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   const [showAddType, setShowAddType] = useState<NodeType>("WIFI");
   const [showDeleteRelation, setShowDeleteRelation] = useState(false);
   const [relationToDelete, setRelationToDelete] = useState<Edge | null>(null);
-  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
+  const [hoveringNode, setHoveringNode] = useState<AppNode | null>(null);
+  const [reconnecting, setReconnecting] = useState(false);
   const defaultEdgeOptions = {
     type: 'floating',
     markerEnd: {
@@ -62,6 +63,11 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
       color: '#b1b1b7',
     },
   };
+  const onReconnectEnd = useCallback((__: any, edge: Edge) => {
+    setShowDeleteRelation(true);
+    setRelationToDelete(edge);
+    setReconnecting(false);
+  }, []);
   
   return (
     <DashboardContext.Provider
@@ -86,12 +92,14 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
         setShowDeleteRelation,
         relationToDelete,
         setRelationToDelete,
-        selectedEdge,
-        setSelectedEdge,
         showAddRelation,
         setShowAddRelation,
         relationToAdd,
         setRelationToAdd,
+        hoveringNode,
+        setHoveringNode,
+        reconnecting,
+        setReconnecting,
       }}
     >
       <ReactFlow
@@ -116,13 +124,17 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
           setContextMenu(null);
         }}
         defaultEdgeOptions={defaultEdgeOptions}
-        onSelectionChange={(selection) => {
-          if (selection.edges.length > 0) {
-            setSelectedEdge(selection.edges[0]);
-          } else {
-            setSelectedEdge(null);
-          }
+        onNodeMouseEnter={(__, node) => {
+          setHoveringNode(node);
         }}
+        onNodeMouseLeave={() => {
+          setHoveringNode(null);
+        }}
+        onReconnectStart={() => {
+          setReconnecting(true);
+        }}
+        onReconnectEnd={onReconnectEnd}
+        onReconnect={() => {}}
       >
         <ContextMenuComponent />
         <DeleteNodeComponent />

@@ -28,12 +28,14 @@ export type DashboardContextProps = {
     setShowDeleteRelation: (showDeleteRelation: boolean) => void;
     relationToDelete: Edge | null;
     setRelationToDelete: (relationToDelete: Edge | null) => void;
-    selectedEdge: Edge | null;
-    setSelectedEdge: (selectedEdge: Edge | null) => void;
     showAddRelation: boolean;
     setShowAddRelation: (showAddRelation: boolean) => void;
     relationToAdd: Connection | null;
     setRelationToAdd: (relationToAdd: Connection | null) => void;
+    hoveringNode: AppNode | null;
+    setHoveringNode: (hoveringNode: AppNode | null) => void;
+    reconnecting: boolean;
+    setReconnecting: (reconnecting: boolean) => void;
 };
 
 export const DashboardContext = createContext<DashboardContextProps>({
@@ -57,10 +59,12 @@ export const DashboardContext = createContext<DashboardContextProps>({
     setShowDeleteRelation: () => {},
     relationToDelete: null,
     setRelationToDelete: () => {},
-    selectedEdge: null,
-    setSelectedEdge: () => {},
     showAddRelation: false,
     setShowAddRelation: () => {},
     relationToAdd: null,
     setRelationToAdd: () => {},
+    hoveringNode: null,
+    setHoveringNode: () => {},
+    reconnecting: false,
+    setReconnecting: () => {},
 });

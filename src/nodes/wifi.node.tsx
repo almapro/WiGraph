@@ -4,6 +4,8 @@ import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { PiPrinterFill } from "react-icons/pi";
 import { type WifiNode, Wifi } from "./types";
 import { Tooltip } from "flowbite-react";
+import { DashboardContext } from "../context";
+import { useContext } from "react";
 
 const WifiNodeIcon: React.FC<{ data: Wifi }> = ({ data }) => {
   if (data.printer) return <PiPrinterFill className="m-auto" />;
@@ -13,9 +15,11 @@ const WifiNodeIcon: React.FC<{ data: Wifi }> = ({ data }) => {
 };
 
 export function WifiNode({ data }: NodeProps<WifiNode>) {
+  const { hoveringNode, reconnecting } = useContext(DashboardContext);
   const connection = useConnection();
-  const potinationalTarget = connection.inProgress && connection.toPosition === Position.Bottom && connection.fromNode?.type === "client";
-  const potinationalSource = connection.inProgress && connection.toPosition === Position.Top && connection.fromNode?.type === "router" && !data.probe && !data.hotspot;
+  const potinationalTarget = !reconnecting && connection.inProgress && connection.toPosition === Position.Bottom && connection.fromNode?.type === "client";
+  const potinationalSource = !reconnecting && connection.inProgress && connection.toPosition === Position.Top && connection.fromNode?.type === "router" && !data.probe && !data.hotspot;
+  const showHandles = hoveringNode?.id === data.id;
   return (
     <Tooltip
       content={`${data.essid === "" ? "(hidden)" : data.essid} \u200E-\u200E ${data.bssid && data.bssid !== "" ? data.bssid : "(unknown)"}`}
@@ -25,20 +29,18 @@ export function WifiNode({ data }: NodeProps<WifiNode>) {
         <div className="m-auto flex gap-2">
           <WifiNodeIcon data={data} />
         </div>
-        {(data.incoming_relations > 0 || potinationalTarget) && (
-          <Handle
-            id={`${data.id}-target`}
-            type="target"
-            position={Position.Bottom}
+       <Handle
+          id={`${data.id}-target`}
+          type="target"
+          position={Position.Bottom}
+          className={`${data.incoming_relations > 0 || potinationalTarget || showHandles ? "" : "opacity-0"}`}
           />
-        )}
-        {(data.outgoing_relations > 0 || potinationalSource) && (
-          <Handle
+        <Handle
             id={`${data.id}-source`}
             type="source"
             position={Position.Top}
+            className={`${data.outgoing_relations > 0 || potinationalSource || showHandles ? "" : "opacity-0"}`}
           />
-        )}
       </div>
     </Tooltip>
   );

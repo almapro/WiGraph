@@ -2,8 +2,12 @@ import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { FaDesktop, FaLaptop, FaMobileAlt, FaTabletAlt } from "react-icons/fa";
 import { type ClientNode } from "./types";
 import { Tooltip } from "flowbite-react";
+import { DashboardContext } from "../context";
+import { useContext } from "react"; 
 
 export function ClientNode({ data }: NodeProps<ClientNode>) {
+    const { hoveringNode } = useContext(DashboardContext);
+    const showHandles = hoveringNode?.id === data.id;
   return (
     <Tooltip
       content={`${data.name} \u200E-\u200E ${data.macAddress}`}
@@ -16,30 +20,18 @@ export function ClientNode({ data }: NodeProps<ClientNode>) {
           {data.desktop && <FaDesktop className="m-auto" />}
           {data.mobile && <FaMobileAlt className="m-auto" />}
         </div>
-        {data.incoming_relations > 0 && (
-          <>
-            {data.incoming_edges.map((edge) => (
-              <Handle
-                key={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
-                id={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
-                type="target"
-                position={Position.Bottom}
-              />
-            ))}
-          </>
-        )}
-        {data.outgoing_relations > 0 && (
-          <>
-            {data.outgoing_edges.map((edge) => (
-              <Handle
-                key={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
-                id={`${data.id}-${edge.source === data.id ? edge.target : edge.source}`}
-                type="source"
-                position={Position.Top}
-              />
-            ))}
-          </>
-        )}
+        <Handle
+            id={`${data.id}-target`}
+            type="target"
+            position={Position.Bottom}
+            className={`${data.incoming_relations > 0 || showHandles ? "" : "opacity-0"}`}
+            />
+        <Handle
+            id={`${data.id}-source`}
+            type="source"
+            position={Position.Top}
+            className={`${data.outgoing_relations > 0 || showHandles ? "" : "opacity-0"}`}
+            />
       </div>
     </Tooltip>
   );
