@@ -1,5 +1,5 @@
 import { Button, HelperText, Label, TextInput, Tooltip } from "flowbite-react";
-import { FC, Ref, useContext, useState } from "react";
+import { FC, Ref, useContext, useEffect, useState } from "react";
 import _ from "lodash";
 import { v4 } from "uuid";
 import { FaEye, FaEyeSlash, FaWifi } from "react-icons/fa";
@@ -26,24 +26,51 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
   const [hotspot, setHotspot] = useState(false);
   const [printer, setPrinter] = useState(false);
   const [bssidError, setBssidError] = useState(false);
-  const handleBssidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBssidError(
-      !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(e.target.value),
-    );
-    setBssid(e.target.value);
-  };
+  const [bssidPart1, setBssidPart1] = useState("");
+  const [bssidPart2, setBssidPart2] = useState("");
+  const [bssidPart3, setBssidPart3] = useState("");
+  const [bssidPart4, setBssidPart4] = useState("");
+  const [bssidPart5, setBssidPart5] = useState("");
+  const [bssidPart6, setBssidPart6] = useState("");
+  
+  useEffect(() => {
+    let value = `${bssidPart1}:${bssidPart2}:${bssidPart3}:${bssidPart4}:${bssidPart5}:${bssidPart6}`;
+    if (value.replaceAll(":", "").length === 0) {
+      setBssidError(false);
+      setBssid("");
+      return;
+    }
+    const isValid = /^([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})$/.test(value);
+    setBssidError(!isValid);
+    setBssid(value);
+  }, [bssidPart1, bssidPart2, bssidPart3, bssidPart4, bssidPart5, bssidPart6]);
   const handleOnSubmit: React.FormEventHandler = async (e) => {
     e.preventDefault();
     const session = driver.session();
     await session
       .run(
-        `CREATE (n:Wifi { id: $id, essid: $essid, bssid: $bssid, probe: $probe, hotspot: $hotspot, printer: $printer${password !== "" ? ", password: $password" : ""}${pin !== "" ? ", pin: $pin" : ""} })`,
-        _.assign(
-          {},
-          { id, essid, bssid, probe, hotspot, printer },
-          password !== "" ? { password } : {},
-          pin !== "" ? { pin } : {},
-        ),
+        `
+        CREATE (n:Wifi {
+          id: $id,
+          essid: $essid,
+          bssid: $bssid,
+          probe: $probe,
+          hotspot: $hotspot,
+          printer: $printer,
+          password: CASE WHEN $password = '' THEN null ELSE $password END,
+          pin: CASE WHEN $pin = '' THEN null ELSE $pin END
+        })
+        `,
+        {
+          id,
+          essid,
+          bssid,
+          probe,
+          hotspot,
+          printer,
+          password,
+          pin
+        },
       )
       .then(async () => {
         enqueueSnackbar("Node added successfully", { variant: "success" });
@@ -82,14 +109,145 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
         <div className="mb-2 block">
           <Label htmlFor="bssid">BSSID{probe ? "" : " *"}</Label>
         </div>
-        <TextInput
-          required={!probe}
-          id="bssid"
-          placeholder="XX:XX:XX:XX:XX:XX"
-          value={bssid}
-          color={bssidError ? "failure" : "gray"}
-          onChange={handleBssidChange}
-        />
+        <div className="flex gap-1">
+          <TextInput
+            required={!probe}
+            id="bssid-1"
+            placeholder="XX"
+            value={bssidPart1}
+            maxLength={2}
+            className="w-12"
+            color={bssidError ? "failure" : "gray"}
+            onChange={(e) => {
+              const val = e.target.value;
+              setBssidPart1(val);
+              if (/^[0-9A-Fa-f]{2}$/.test(val)) {
+                const nextInput = document.getElementById('bssid-2');
+                nextInput?.focus();
+              }
+            }}
+          />
+          <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+          <TextInput
+            required={!probe}
+            id="bssid-2" 
+            placeholder="XX"
+            value={bssidPart2}
+            maxLength={2}
+            className="w-12"
+            color={bssidError ? "failure" : "gray"}
+            onChange={(e) => {
+              if (e.target.value === '' && e.target.selectionStart === 0) {
+                const prevInput = document.getElementById('bssid-1') as HTMLInputElement | null;
+                if (prevInput) {
+                  prevInput.focus();
+                  prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                }
+              }
+              const val = e.target.value;
+              setBssidPart2(val);
+              if (/^[0-9A-Fa-f]{2}$/.test(val)) {
+                const nextInput = document.getElementById('bssid-3');
+                nextInput?.focus();
+              }
+            }}
+          />
+          <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+          <TextInput
+            required={!probe}
+            id="bssid-3"
+            placeholder="XX"
+            value={bssidPart3}
+            maxLength={2}
+            className="w-12"
+            color={bssidError ? "failure" : "gray"}
+            onChange={(e) => {
+              if (e.target.value === '' && e.target.selectionStart === 0) {
+                const prevInput = document.getElementById('bssid-2') as HTMLInputElement | null;
+                if (prevInput) {
+                  prevInput.focus();
+                  prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                }
+              }
+              const val = e.target.value;
+              setBssidPart3(val);
+              if (/^[0-9A-Fa-f]{2}$/.test(val)) {
+                const nextInput = document.getElementById('bssid-4');
+                nextInput?.focus();
+              }
+            }}
+          />
+          <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+          <TextInput
+            required={!probe}
+            id="bssid-4"
+            placeholder="XX"
+            value={bssidPart4}
+            maxLength={2}
+            className="w-12"
+            color={bssidError ? "failure" : "gray"}
+            onChange={(e) => {
+              if (e.target.value === '' && e.target.selectionStart === 0) {
+                const prevInput = document.getElementById('bssid-3') as HTMLInputElement | null;
+                if (prevInput) {
+                  prevInput.focus();
+                  prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                }
+              }
+              const val = e.target.value;
+              setBssidPart4(val);
+              if (/^[0-9A-Fa-f]{2}$/.test(val)) {
+                const nextInput = document.getElementById('bssid-5');
+                nextInput?.focus();
+              }
+            }}
+          />
+          <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+          <TextInput
+            required={!probe}
+            id="bssid-5"
+            placeholder="XX"
+            value={bssidPart5}
+            maxLength={2}
+            className="w-12"
+            color={bssidError ? "failure" : "gray"}
+            onChange={(e) => {
+              if (e.target.value === '' && e.target.selectionStart === 0) {
+                const prevInput = document.getElementById('bssid-4') as HTMLInputElement | null;
+                if (prevInput) {
+                  prevInput.focus();
+                  prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                }
+              }
+              const val = e.target.value;
+              setBssidPart5(val);
+              if (/^[0-9A-Fa-f]{2}$/.test(val)) {
+                const nextInput = document.getElementById('bssid-6');
+                nextInput?.focus();
+              }
+            }}
+          />
+          <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+          <TextInput
+            required={!probe}
+            id="bssid-6"
+            placeholder="XX"
+            value={bssidPart6}
+            maxLength={2}
+            className="w-12"
+            color={bssidError ? "failure" : "gray"}
+            onChange={(e) => {
+              if (e.target.value === '' && e.target.selectionStart === 0) {
+                const prevInput = document.getElementById('bssid-5') as HTMLInputElement | null;
+                if (prevInput) {
+                  prevInput.focus();
+                  prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                }
+              }
+              setBssidPart6(e.target.value);
+            }}
+          />
+        </div>
         <HelperText
           color={bssidError ? "failure" : "gray"}
         >

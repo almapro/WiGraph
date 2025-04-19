@@ -11,7 +11,7 @@ import { FaDesktop, FaLaptop, FaMobileAlt, FaPlus, FaTabletAlt, FaTrash } from "
 interface ClientFormData {
   id: string;
   name: string;
-  macAddress: string;
+  macAddressParts: string[];
   ipAddress: string;
   mobile: boolean;
   laptop: boolean;
@@ -30,7 +30,7 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
   const [clients, setClients] = useState<ClientFormData[]>([{
     id: v4(),
     name: "",
-    macAddress: "",
+    macAddressParts: ["", "", "", "", "", ""],
     ipAddress: "",
     mobile: false,
     laptop: true,
@@ -38,11 +38,11 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
     desktop: false
   }]);
 
-  const handleMacAddressChange = (index: number, value: string) => {
+  const handleMacAddressChange = (index: number, value: string, part: number) => {
     const newClients = [...clients];
     newClients[index] = {
       ...newClients[index],
-      macAddress: value
+      macAddressParts: newClients[index].macAddressParts.map((p, i) => i === part ? value : p)
     };
     setClients(newClients);
   };
@@ -51,7 +51,7 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
     setClients([...clients, {
       id: v4(),
       name: "",
-      macAddress: "",
+      macAddressParts: ["", "", "", "", "", ""],
       ipAddress: "",
       mobile: false,
       laptop: true,
@@ -71,7 +71,7 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
 
     // Validate all MAC addresses
     // Check for duplicate MAC addresses within the form
-    const macAddresses = clients.map(c => c.macAddress.toLowerCase());
+    const macAddresses = clients.map(c => c.macAddressParts.join(":").toLowerCase());
     const hasDuplicates = macAddresses.length !== new Set(macAddresses).size;
     if (hasDuplicates) {
       enqueueSnackbar("Duplicate MAC addresses found", { variant: "error" });
@@ -79,7 +79,7 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
     }
 
     const hasInvalidMac = clients.some(client => 
-      !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(client.macAddress)
+      !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(client.macAddressParts.join(":"))
     );
 
     if (hasInvalidMac) {
@@ -261,14 +261,144 @@ export const AddClientsComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor={`macAddress-${index}`}>MAC Address</Label>
+            <div className="flex gap-1">
+              <TextInput
+                id={`macAddress-${index}-1`}
+                value={client.macAddressParts[0]}
+                maxLength={2}
+                onChange={(e) => {
+                  handleMacAddressChange(index, e.target.value, 0);
+                  if (e.target.value.length === 2) {
+                    const nextInput = document.getElementById(`macAddress-${index}-2`) as HTMLInputElement | null;
+                    if (nextInput) {
+                      nextInput.focus();
+                      nextInput.setSelectionRange(0, nextInput.value.length);
+                    }
+                  }
+                }}
+                placeholder="XX"
+                required
+              />
+              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <TextInput
+                id={`macAddress-${index}-2`}
+                value={client.macAddressParts[1]}
+                maxLength={2}
+                onChange={(e) => {
+                  handleMacAddressChange(index, e.target.value, 1);
+                  if (e.target.value === '' && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(`macAddress-${index}-1`) as HTMLInputElement | null;
+                    if (prevInput) {
+                      prevInput.focus();
+                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                    }
+                  }
+                  if (e.target.value.length === 2) {
+                    const nextInput = document.getElementById(`macAddress-${index}-3`) as HTMLInputElement | null;
+                    if (nextInput) {
+                      nextInput.focus();
+                      nextInput.setSelectionRange(0, nextInput.value.length);
+                    }
+                  }
+                }}
+                placeholder="XX"
+                required
+              />
+              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <TextInput
+                id={`macAddress-${index}-3`}
+                value={client.macAddressParts[2]}
+                maxLength={2}
+                onChange={(e) => {
+                  handleMacAddressChange(index, e.target.value, 2);
+                  if (e.target.value === '' && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(`macAddress-${index}-2`) as HTMLInputElement | null;
+                    if (prevInput) {
+                      prevInput.focus();
+                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                    }
+                  }
+                  if (e.target.value.length === 2) {
+                    const nextInput = document.getElementById(`macAddress-${index}-4`) as HTMLInputElement | null;
+                    if (nextInput) {
+                      nextInput.focus();
+                      nextInput.setSelectionRange(0, nextInput.value.length);
+                    }
+                  }
+                }}
+                placeholder="XX"
+                required
+              />
+            <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
             <TextInput
-              id={`macAddress-${index}`}
-              value={client.macAddress}
-              onChange={(e) => handleMacAddressChange(index, e.target.value)}
-              placeholder="00:00:00:00:00:00"
+              id={`macAddress-${index}-4`}
+              value={client.macAddressParts[3]}
+              maxLength={2}
+              onChange={(e) => {
+                handleMacAddressChange(index, e.target.value, 3);
+                if (e.target.value === '' && e.target.selectionStart === 0) {
+                  const prevInput = document.getElementById(`macAddress-${index}-3`) as HTMLInputElement | null;
+                  if (prevInput) {
+                    prevInput.focus();
+                    prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                  }
+                }
+                if (e.target.value.length === 2) {
+                  const nextInput = document.getElementById(`macAddress-${index}-5`) as HTMLInputElement | null;
+                  if (nextInput) {
+                    nextInput.focus();
+                    nextInput.setSelectionRange(0, nextInput.value.length);
+                  }
+                }
+              }}
+              placeholder="XX"
               required
             />
-            {!/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(client.macAddress) && client.macAddress !== "" && (
+            <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+            <TextInput
+              id={`macAddress-${index}-5`}
+              value={client.macAddressParts[4]}
+              maxLength={2}
+              onChange={(e) => {
+                handleMacAddressChange(index, e.target.value, 4);
+                if (e.target.value === '' && e.target.selectionStart === 0) {
+                  const prevInput = document.getElementById(`macAddress-${index}-4`) as HTMLInputElement | null;
+                  if (prevInput) {
+                    prevInput.focus();
+                    prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                  }
+                }
+                if (e.target.value.length === 2) {
+                  const nextInput = document.getElementById(`macAddress-${index}-6`) as HTMLInputElement | null;
+                  if (nextInput) {
+                    nextInput.focus();
+                    nextInput.setSelectionRange(0, nextInput.value.length);
+                  }
+                }
+              }}
+              placeholder="XX"
+              required
+            />
+            <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+            <TextInput
+              id={`macAddress-${index}-6`}
+              value={client.macAddressParts[5]}
+              maxLength={2}
+              onChange={(e) => {
+                handleMacAddressChange(index, e.target.value, 5);
+                if (e.target.value === '' && e.target.selectionStart === 0) {
+                  const prevInput = document.getElementById(`macAddress-${index}-5`) as HTMLInputElement | null;
+                  if (prevInput) {
+                    prevInput.focus();
+                    prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                  }
+                }
+              }}
+              placeholder="XX"
+              required
+            />
+            </div>
+            {!/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(client.macAddressParts.join(":")) && client.macAddressParts.join("") !== "" && (
               <HelperText color="failure">
                 Please enter a valid MAC address (format: 00:00:00:00:00:00)
               </HelperText>
