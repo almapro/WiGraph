@@ -4,7 +4,7 @@ import { AppNode, ClientNode } from "../../nodes/types";
 import { DashboardContext } from "../../context";
 
 export const ClientContextMenu: FC<{ node: AppNode }> = ({ node }) => {
-  const { setIsEditingNode, setIsDeletingNode, setActiveNode } = useContext(DashboardContext);
+  const { setShowEditingNode, setShowDeleteNode, setActiveNode } = useContext(DashboardContext);
 
   const isClientNode = (node: AppNode): node is ClientNode => {
     return node.type === 'client';
@@ -18,14 +18,14 @@ export const ClientContextMenu: FC<{ node: AppNode }> = ({ node }) => {
       <div className="py-1">
         <button 
           className="w-full px-4 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-          onClick={() => setIsEditingNode(true)}
+          onClick={() => setShowEditingNode(true)}
         >
           <FaEdit className="w-4 h-4" />
           Edit Node
         </button>
         <button 
           className="w-full px-4 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-          onClick={() => setIsDeletingNode(true)}
+          onClick={() => setShowDeleteNode(true)}
         >
           <FaTrash className="w-4 h-4" />
           Delete Node

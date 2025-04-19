@@ -9,12 +9,14 @@ import {
   type OnConnect,
   BackgroundVariant,
   useReactFlow,
+  Edge,
+  MarkerType,
 } from "@xyflow/react";
 import { Driver } from "neo4j-driver";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { initialNodes, nodeTypes } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
-import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, FloatingActionsComponent } from "../components";
+import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent } from "../components";
 import { useTitle } from "react-use";
 import { AppContext, DashboardContext } from "../context";
 import { getNodes } from "../neo4j";
@@ -38,61 +40,87 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
     y: number;
     node: AppNode;
   } | null>(null);
-  const [isConvertingToWifi, setIsConvertingToWifi] = useState(false);
-  const [isAddingClients, setIsAddingClients] = useState(false);
-  const [isEditingNode, setIsEditingNode] = useState(false);
-  const [isDeletingNode, setIsDeletingNode] = useState(false);
+  const [showConvertingToWifi, setShowConvertingToWifi] = useState(false);
+  const [showAddingClients, setShowAddingClients] = useState(false);
+  const [showEditingNode, setShowEditingNode] = useState(false);
+  const [showDeleteNode, setShowDeleteNode] = useState(false);
   const [activeNode, setActiveNode] = useState<AppNode | null>(null);
   const [showAddNode, setShowAddNode] = useState(false);
+  const [showDeleteRelation, setShowDeleteRelation] = useState(false);
+  const [relationToDelete, setRelationToDelete] = useState<Edge | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
+  const defaultEdgeOptions = {
+    type: 'floating',
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      color: '#b1b1b7',
+    },
+  };
+  
   return (
-    <ReactFlow
-      colorMode={colorMode}
-      nodes={nodes}
-      nodeTypes={nodeTypes}
-      onNodesChange={onNodesChange}
-      edges={edges}
-      edgeTypes={edgeTypes}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      fitView
-      onNodeContextMenu={(event, node) => {
-        event.preventDefault();
-        setContextMenu({
-          x: event.clientX,
-          y: event.clientY,
-          node: node,
-        });
-      }}
-      onClick={() => {
-        setContextMenu(null);
-      }}
-    >
-      <DashboardContext.Provider
-        value={{
-          driver,
-          contextMenu,
-          isConvertingToWifi,
-          setIsConvertingToWifi,
-          isAddingClients,
-          setIsAddingClients,
-          isEditingNode,
-          setIsEditingNode,
-          isDeletingNode,
-          setIsDeletingNode,
-          activeNode,
-          setActiveNode,
+    <DashboardContext.Provider
+      value={{
+        driver,
+        contextMenu,
+        showConvertingToWifi,
+        setShowConvertingToWifi,
+        showAddingClients,
+        setShowAddingClients,
+        showEditingNode,
+        setShowEditingNode,
+        showDeleteNode,
+        setShowDeleteNode,
+        activeNode,
+        setActiveNode,
         showAddNode,
         setShowAddNode,
+        showDeleteRelation,
+        setShowDeleteRelation,
+        relationToDelete,
+        setRelationToDelete,
+        selectedEdge,
+        setSelectedEdge,
+      }}
+    >
+      <ReactFlow
+        colorMode={colorMode}
+        nodes={nodes}
+        nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
+        edges={edges}
+        edgeTypes={edgeTypes}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        fitView
+        onNodeContextMenu={(event, node) => {
+          event.preventDefault();
+          setContextMenu({
+            x: event.clientX,
+            y: event.clientY,
+            node: node,
+          });
+        }}
+        onClick={() => {
+          setContextMenu(null);
+        }}
+        defaultEdgeOptions={defaultEdgeOptions}
+        onSelectionChange={(selection) => {
+          if (selection.edges.length > 0) {
+            setSelectedEdge(selection.edges[0]);
+          } else {
+            setSelectedEdge(null);
+          }
         }}
       >
         <ContextMenuComponent />
         <DeleteNodeComponent />
+        <DeleteRelationComponent />
         <AddNodeComponent />
         <Background variant={BackgroundVariant.Dots} />
         <MiniMap />
         <Controls />
         <FloatingActionsComponent />
-      </DashboardContext.Provider>
-    </ReactFlow>
+      </ReactFlow>
+    </DashboardContext.Provider>
   );
 };

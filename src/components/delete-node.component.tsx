@@ -4,10 +4,9 @@ import { useContext } from "react";
 import { useReactFlow } from "@xyflow/react";
 import { deleteNode, getNodes } from "../neo4j";
 import { useSnackbar } from "notistack";
-import _ from "lodash";
 
 export const DeleteNodeComponent = () => {
-  const { isDeletingNode, setIsDeletingNode, driver, activeNode } = useContext(DashboardContext);
+  const { showDeleteNode, setShowDeleteNode, driver, activeNode } = useContext(DashboardContext);
   const { setNodes, setEdges, fitView } = useReactFlow();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -17,7 +16,7 @@ export const DeleteNodeComponent = () => {
         await deleteNode(driver, activeNode);
         await getNodes(driver, setNodes, setEdges, fitView);
         enqueueSnackbar("Node deleted successfully", { variant: "success" });
-        setIsDeletingNode(false);
+        setShowDeleteNode(false);
     } catch (error) {
         console.error(error);
         enqueueSnackbar("Failed to delete node", { variant: "error" });
@@ -25,7 +24,7 @@ export const DeleteNodeComponent = () => {
   };
 
   return (
-    <Modal show={isDeletingNode} onClose={() => setIsDeletingNode(false)}>
+    <Modal show={showDeleteNode} onClose={() => setShowDeleteNode(false)}>
       <ModalHeader>Delete Node</ModalHeader>
       <ModalBody>
         <div className="text-gray-700 dark:text-gray-200">
@@ -34,7 +33,7 @@ export const DeleteNodeComponent = () => {
       </ModalBody>
       <ModalFooter>
         <Button color="red" onClick={handleDelete}>Delete</Button>
-        <Button color="gray" onClick={() => setIsDeletingNode(false)}>
+        <Button color="gray" onClick={() => setShowDeleteNode(false)}>
           Cancel
         </Button>
       </ModalFooter>

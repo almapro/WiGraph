@@ -103,7 +103,10 @@ export const getNodes = async (
                 id: `${edge.source}-${edge.target}`,
                 source: edge.source,
                 target: edge.target,
-                type: "default"
+                type: "custom",
+                data: {
+                    label: edge.type
+                }
           })))
         });
     clientsRecords.map((record) => {
@@ -111,7 +114,10 @@ export const getNodes = async (
             id: `${edge.source}-${edge.target}`,
             source: edge.source,
             target: edge.target,
-            type: "default"
+            type: "custom",
+            data: {
+                label: edge.type
+            }
         })))
     })
     setEdges(edges);
