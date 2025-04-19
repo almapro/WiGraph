@@ -19,7 +19,7 @@ export const CustomEdge = memo((props: EdgeProps) => {
               <FaTrash onClick={() => {
                 setRelationToDelete({ id: props.id, source: props.source, target: props.target });
                 setShowDeleteRelation(true);
-              }} className="h-2 w-2 group-hover:fill-red-500 dark:fill-gray-400 dark:group-hover:fill-red-500" />
+              }} className="h-2 w-2 group-hover:fill-red-500 dark:fill-gray-400 " />
             </div>
           </Tooltip>
         )}
