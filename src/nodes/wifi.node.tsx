@@ -1,10 +1,12 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { FaWifi } from "react-icons/fa";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
+import { PiPrinterFill } from "react-icons/pi";
 import { type WifiNode, Wifi } from "./types";
 import { Tooltip } from "flowbite-react";
 
 const WifiNodeIcon: React.FC<{ data: Wifi }> = ({ data }) => {
+  if (data.printer) return <PiPrinterFill className="m-auto" />;
   if (data.hotspot) return <MdWifiTethering className="m-auto" />;
   if (data.probe) return <MdPermScanWifi className="m-auto" />;
   return <FaWifi className="m-auto" />;

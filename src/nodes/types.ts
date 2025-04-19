@@ -47,6 +47,7 @@ export type Wifi = {
   pin: string;
   hotspot: boolean;
   probe: boolean;
+  printer: boolean;
   handshakes: Handshake[];
   incoming_relations: number;
   outgoing_relations: number;

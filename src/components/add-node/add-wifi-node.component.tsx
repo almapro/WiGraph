@@ -8,6 +8,7 @@ import { useSnackbar } from "notistack";
 import { DashboardContext } from '../../context';
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../../neo4j";
+import { PiPrinterFill } from "react-icons/pi";
 
 export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
   formRef,
@@ -23,6 +24,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
   const [pin, setPin] = useState("");
   const [probe, setProbe] = useState(false);
   const [hotspot, setHotspot] = useState(false);
+  const [printer, setPrinter] = useState(false);
   const [bssidError, setBssidError] = useState(false);
   const handleBssidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBssidError(
@@ -35,10 +37,10 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
     const session = driver.session();
     await session
       .run(
-        `CREATE (n:Wifi { id: $id, essid: $essid, bssid: $bssid, probe: $probe, hotspot: $hotspot${password !== "" ? ", password: $password" : ""}${pin !== "" ? ", pin: $pin" : ""} })`,
+        `CREATE (n:Wifi { id: $id, essid: $essid, bssid: $bssid, probe: $probe, hotspot: $hotspot, printer: $printer${password !== "" ? ", password: $password" : ""}${pin !== "" ? ", pin: $pin" : ""} })`,
         _.assign(
           {},
-          { id, essid, bssid, probe, hotspot },
+          { id, essid, bssid, probe, hotspot, printer },
           password !== "" ? { password } : {},
           pin !== "" ? { pin } : {},
         ),
@@ -140,11 +142,12 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
         <div className="flex gap-2">
           <Tooltip content="WiFi" placement="bottom">
             <Button
-              disabled={!probe && !hotspot}
+              disabled={!probe && !hotspot && !printer}
               className="flex size-12 w-full"
               onClick={() => {
                 setProbe(false);
                 setHotspot(false);
+                setPrinter(false);
               }}
             >
               <FaWifi className="m-auto" />
@@ -157,6 +160,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
               onClick={() => {
                 setProbe(true);
                 setHotspot(false);
+                setPrinter(false);
               }}
             >
               <MdPermScanWifi className="m-auto" />
@@ -169,9 +173,23 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
               onClick={() => {
                 setProbe(false);
                 setHotspot(true);
+                setPrinter(false);
               }}
             >
               <MdWifiTethering className="m-auto" />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Printer" placement="bottom">
+            <Button
+              className="flex size-12 w-full"
+              disabled={printer}
+              onClick={() => {
+                setProbe(false);
+                setHotspot(false);
+                setPrinter(true);
+              }}
+            >
+              <PiPrinterFill className="m-auto" />
             </Button>
           </Tooltip>
         </div>

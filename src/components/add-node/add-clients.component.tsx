@@ -7,7 +7,7 @@ import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../../neo4j";
 import { WifiNode } from "../../nodes/types";
 import { FaDesktop, FaLaptop, FaMobileAlt, FaPlus, FaTabletAlt, FaTrash } from "react-icons/fa";
-
+    
 interface ClientFormData {
   id: string;
   name: string;
