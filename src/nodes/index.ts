@@ -1,6 +1,5 @@
 import type { NodeTypes } from "@xyflow/react";
 
-import { PositionLoggerNode } from "./PositionLoggerNode";
 import { AppNode } from "./types";
 import { WifiNode } from "./wifi.node";
 import { ClientNode } from "./client.node";
@@ -39,10 +38,8 @@ export const initialNodes: AppNode[] = [
 ];
 
 export const nodeTypes = {
-  "position-logger": PositionLoggerNode,
   wifi: WifiNode,
   client: ClientNode,
-  // Add any of your custom nodes here!
 } satisfies NodeTypes;
 
 export * from "./types";
