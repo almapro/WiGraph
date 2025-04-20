@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { Navigate, useLocation } from "react-router";
 import { DashboardView } from "../views";
 import { AppContext } from "../context";
+import { DashboardProvider } from "../providers";
 
 export const RestrictedRoute = () => {
   const { driver } = useContext(AppContext);
@@ -9,6 +10,8 @@ export const RestrictedRoute = () => {
   return driver === null ? (
     <Navigate to="/connect" replace state={{ from: location.pathname }} />
   ) : (
-    <DashboardView driver={driver} />
+    <DashboardProvider driver={driver}>
+      <DashboardView />
+    </DashboardProvider>
   );
 };
