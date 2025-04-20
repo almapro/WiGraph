@@ -1,11 +1,11 @@
 import { Button, HelperText, Label, TextInput, Tooltip } from "flowbite-react";
-import { FC, Ref, useContext, useEffect, useState } from "react";
+import { FC, Ref, useEffect, useState } from "react";
 import _ from "lodash";
 import { v4 } from "uuid";
 import { FaEye, FaEyeSlash, FaWifi } from "react-icons/fa";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { useSnackbar } from "notistack";
-import { DashboardContext } from '../../context';
+import { useDashboardContext } from '../../context';
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../../neo4j";
 import { PiPrinterFill } from "react-icons/pi";
@@ -15,7 +15,7 @@ export const AddWifiNodeComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver, setShowAddNode } = useContext(DashboardContext);
+  const { driver, setShowAddNode } = useDashboardContext();
   const [id, setId] = useState(v4());
   const [essid, setEssid] = useState("");
   const [bssid, setBssid] = useState("");

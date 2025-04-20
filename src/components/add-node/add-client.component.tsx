@@ -1,8 +1,8 @@
 import { HelperText, Label, TextInput, Button, Tooltip } from "flowbite-react";
-import { FC, Ref, useContext, useState } from "react";
+import { FC, Ref, useState } from "react";
 import { v4 } from "uuid";
 import { useSnackbar } from "notistack";
-import { DashboardContext } from '../../context';
+import { useDashboardContext } from '../../context';
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../../neo4j";
 import { FaDesktop, FaLaptop, FaMobileAlt, FaTabletAlt } from "react-icons/fa";
@@ -23,7 +23,7 @@ export const AddClientComponent: FC<{ formRef: Ref<HTMLFormElement> }> = ({
 }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver, setShowAddNode, setShowAddType } = useContext(DashboardContext);
+  const { driver, setShowAddNode, setShowAddType } = useDashboardContext();
   const [client, setClient] = useState<ClientFormData>({
     id: v4(),
     name: "",

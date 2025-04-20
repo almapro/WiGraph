@@ -16,7 +16,7 @@ import { Driver } from "neo4j-driver";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { initialNodes, nodeTypes } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
-import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent } from "../components";
+import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddConnectionPanel } from "../components";
 import { useTitle } from "react-use";
 import { AppContext, DashboardContext } from "../context";
 import { getNodes } from "../neo4j";
@@ -74,6 +74,7 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
       value={{
         driver,
         contextMenu,
+        setContextMenu,
         showConvertingToWifi,
         setShowConvertingToWifi,
         showAddingClientsToWifi,
@@ -143,6 +144,7 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
         <AddRelationComponent />
         <AddClientsToWifiComponent />
         <ConvertToWifiComponent />
+        <AddConnectionPanel />
         <Background variant={BackgroundVariant.Dots} />
         <MiniMap />
         <Controls />

@@ -1,6 +1,6 @@
 import { Button, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "flowbite-react";
-import { useContext, useEffect, useState } from "react";
-import { DashboardContext } from "../context";
+import { useEffect, useState } from "react";
+import { useDashboardContext } from "../context";
 import { useSnackbar } from "notistack";
 import { getNodes } from "../neo4j";
 import { useReactFlow, Node } from "@xyflow/react";
@@ -12,7 +12,7 @@ export const AddRelationComponent = () => {
     setShowAddRelation,
     relationToAdd,
     setRelationToAdd
-  } = useContext(DashboardContext);
+  } = useDashboardContext();
   const { setNodes, setEdges } = useReactFlow();
   const { enqueueSnackbar } = useSnackbar();
   const { fitView, getNode, getEdges } = useReactFlow();

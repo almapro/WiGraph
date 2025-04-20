@@ -1,8 +1,8 @@
 import { HelperText, Label, TextInput, Button, Tooltip, Modal, ModalFooter, ModalHeader, ModalBody } from "flowbite-react";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { v4 } from "uuid";
 import { useSnackbar } from "notistack";
-import { DashboardContext } from '../context/';
+import { useDashboardContext } from '../context/dashboard.context';
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../neo4j";
 import { FaDesktop, FaLaptop, FaMobileAlt, FaPlus, FaTabletAlt, FaTrash } from "react-icons/fa";
@@ -22,7 +22,7 @@ interface ClientFormData {
 export const AddClientsToWifiComponent = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver, setShowAddingClientsToWifi, showAddingClientsToWifi, activeNode, setActiveNode } = useContext(DashboardContext);
+  const { driver, setShowAddingClientsToWifi, showAddingClientsToWifi, activeNode, setActiveNode } = useDashboardContext();
   const [clients, setClients] = useState<ClientFormData[]>([{
     id: v4(),
     name: "",

@@ -2,11 +2,10 @@ import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { FaDesktop, FaLaptop, FaMobileAlt, FaTabletAlt } from "react-icons/fa";
 import { type ClientNode } from "./types";
 import { Tooltip } from "flowbite-react";
-import { DashboardContext } from "../context";
-import { useContext } from "react"; 
+import { useDashboardContext } from "../context";
 
 export function ClientNode({ data }: NodeProps<ClientNode>) {
-    const { hoveringNode } = useContext(DashboardContext);
+    const { hoveringNode } = useDashboardContext();
     const showHandles = hoveringNode?.id === data.id;
   return (
     <Tooltip

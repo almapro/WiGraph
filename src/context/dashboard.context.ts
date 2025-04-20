@@ -1,5 +1,5 @@
 import { Driver } from "neo4j-driver";
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 import { AppNode, NodeType } from "../nodes/types";
 import { Connection, Edge } from "@xyflow/react";
 
@@ -10,6 +10,11 @@ export type DashboardContextProps = {
         y: number;
         node: AppNode;
     } | null;
+    setContextMenu: (contextMenu: {
+        x: number;
+        y: number;
+        node: AppNode;
+    } | null) => void;
     showConvertingToWifi: boolean;
     setShowConvertingToWifi: (showConvertingToWifi: boolean) => void;
     showAddingClientsToWifi: boolean;
@@ -41,6 +46,7 @@ export type DashboardContextProps = {
 export const DashboardContext = createContext<DashboardContextProps>({
     driver: {} as Driver,
     contextMenu: null,
+    setContextMenu: () => {},
     showConvertingToWifi: false,
     setShowConvertingToWifi: () => {},
     showAddingClientsToWifi: false,
@@ -68,3 +74,7 @@ export const DashboardContext = createContext<DashboardContextProps>({
     reconnecting: false,
     setReconnecting: () => {},
 });
+
+export const useDashboardContext = () => {
+    return useContext(DashboardContext);
+};

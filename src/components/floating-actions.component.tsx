@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import { FloatingButtonComponent } from "./floating-actions";
 import { useContext } from 'react';
-import { AppContext, DashboardContext } from '../context';
+import { AppContext, useDashboardContext } from '../context';
 import { VscDebugDisconnect } from "react-icons/vsc";
 import { FaRotateRight } from "react-icons/fa6";
 import { getNodes } from "../neo4j";
@@ -17,7 +17,7 @@ export const FloatingActionsComponent = () => {
   const { colorMode, setColorMode, setDriver } =
     useContext(AppContext);
   const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver, setShowAddNode } = useContext(DashboardContext);
+  const { driver, setShowAddNode } = useDashboardContext();
   return (
     <Panel position="top-right" className="flex flex-col gap-2">
       <FloatingButtonComponent

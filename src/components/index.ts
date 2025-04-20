@@ -8,3 +8,4 @@ export * from './delete-relation.component';
 export * from './add-relation.component';
 export * from './add-clients-to-wifi.component';
 export * from './convert-to-wifi.component';
+export * from './add-connection-panel.component';

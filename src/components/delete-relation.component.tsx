@@ -1,12 +1,11 @@
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter } from "flowbite-react";
-import { DashboardContext } from '../context';
-import { useContext } from "react";
+import { useDashboardContext } from '../context';
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../neo4j";
 import { useSnackbar } from "notistack";
 
 export const DeleteRelationComponent = () => {
-  const { showDeleteRelation, setShowDeleteRelation, driver, relationToDelete, setRelationToDelete } = useContext(DashboardContext);
+  const { showDeleteRelation, setShowDeleteRelation, driver, relationToDelete, setRelationToDelete } = useDashboardContext();
   const { setNodes, setEdges, fitView } = useReactFlow();
   const { enqueueSnackbar } = useSnackbar();
 

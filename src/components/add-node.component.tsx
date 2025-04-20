@@ -1,11 +1,11 @@
 import { Modal, Button, ModalHeader, ModalBody, ModalFooter, Tooltip } from "flowbite-react";
-import { createRef, useContext } from "react";
-import { DashboardContext } from "../context";
+import { createRef } from "react";
+import { useDashboardContext } from "../context";
 import { AddClientComponent, AddWifiNodeComponent } from "./add-node";
 import { FaLaptop, FaWifi } from "react-icons/fa";
 
 export const AddNodeComponent = () => {
-  const { showAddNode, setShowAddNode, showAddType, setShowAddType } = useContext(DashboardContext);
+  const { showAddNode, setShowAddNode, showAddType, setShowAddType } = useDashboardContext();
   const formRef = createRef<HTMLFormElement>();
 
   const handleSubmit = (e: React.MouseEvent) => {

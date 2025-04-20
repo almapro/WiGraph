@@ -1,10 +1,10 @@
-import { FC, useContext } from "react";
+import { FC } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { AppNode, ClientNode } from "../../nodes/types";
-import { DashboardContext } from "../../context";
+import { useDashboardContext } from "../../context";
 
 export const ClientContextMenu: FC<{ node: AppNode }> = ({ node }) => {
-  const { setShowEditingNode, setShowDeleteNode, setActiveNode } = useContext(DashboardContext);
+  const { setShowEditingNode, setShowDeleteNode, setActiveNode } = useDashboardContext();
 
   const isClientNode = (node: AppNode): node is ClientNode => {
     return node.type === 'client';

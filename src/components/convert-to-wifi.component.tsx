@@ -1,13 +1,13 @@
 import { Button, HelperText, Label, Modal, ModalBody, ModalFooter, ModalHeader, TextInput } from "flowbite-react";
-import { useContext, useEffect, useState } from "react";
-import { DashboardContext } from "../context";
+import { useEffect, useState } from "react";
+import { useDashboardContext } from "../context";
 import { getNodes } from "../neo4j";
 import { useReactFlow } from "@xyflow/react";
 import { enqueueSnackbar } from "notistack";
 import { WifiNode } from "../nodes/types";
 
 export const ConvertToWifiComponent = () => {
-  const { driver, showConvertingToWifi, setShowConvertingToWifi, activeNode } = useContext(DashboardContext);
+  const { driver, showConvertingToWifi, setShowConvertingToWifi, activeNode } = useDashboardContext();
   const { setNodes, setEdges, fitView } = useReactFlow();
   const [bssid, setBssid] = useState("");
   const [bssidError, setBssidError] = useState(false);

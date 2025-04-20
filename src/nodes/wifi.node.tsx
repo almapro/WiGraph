@@ -4,8 +4,7 @@ import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { PiPrinterFill } from "react-icons/pi";
 import { type WifiNode, Wifi } from "./types";
 import { Tooltip } from "flowbite-react";
-import { DashboardContext } from "../context";
-import { useContext } from "react";
+import { useDashboardContext } from "../context";
 
 const WifiNodeIcon: React.FC<{ data: Wifi }> = ({ data }) => {
   if (data.printer) return <PiPrinterFill className="m-auto" />;
@@ -15,7 +14,7 @@ const WifiNodeIcon: React.FC<{ data: Wifi }> = ({ data }) => {
 };
 
 export function WifiNode({ data }: NodeProps<WifiNode>) {
-  const { hoveringNode, reconnecting } = useContext(DashboardContext);
+  const { hoveringNode, reconnecting } = useDashboardContext();
   const connection = useConnection();
   const potinationalTarget = !reconnecting && connection.inProgress && connection.toPosition === Position.Bottom && connection.fromNode?.type === "client";
   const potinationalSource = !reconnecting && connection.inProgress && connection.toPosition === Position.Top && connection.fromNode?.type === "router" && !data.probe && !data.hotspot;
