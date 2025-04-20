@@ -71,10 +71,10 @@ export const AddClientComponent: FC = () => {
         WITH c
         UNWIND $relations AS relation
         MATCH (n:Wifi {id: relation.id})
-        FOREACH (probe IN CASE WHEN n.probe THEN [1] ELSE [] END |
+        FOREACH (_ IN CASE WHEN n.probe THEN [1] ELSE [] END |
           CREATE (c)-[:KNOWS]->(n)
         )
-        FOREACH (probe IN CASE WHEN NOT n.probe THEN [1] ELSE [] END |
+        FOREACH (_ IN CASE WHEN NOT n.probe THEN [1] ELSE [] END |
           CREATE (c)-[:CONNECTS_TO]->(n)
         )
       `;
