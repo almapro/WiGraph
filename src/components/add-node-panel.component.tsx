@@ -11,7 +11,7 @@ export const AddNodePanel = () => {
       className="flex flex-col gap-2 rounded-lg border-2 border-gray-500 bg-white p-2 dark:border-zinc-700 dark:bg-neutral-900 dark:text-white"
     >
         <Tooltip
-          content="Add WiFi Node"
+          content="Drag to add WiFi Node"
           placement='right'
           className='text-nowrap'
         >
@@ -27,7 +27,7 @@ export const AddNodePanel = () => {
             </div>
         </Tooltip>
         <Tooltip
-          content="Add Client Node"
+          content="Drag to add Client Node"
           placement='right'
           className='text-nowrap'
         >
