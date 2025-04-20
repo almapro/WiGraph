@@ -3,7 +3,6 @@ import {
   FaDownload,
   FaFileUpload,
   FaMoon,
-  FaPlus,
   FaSun,
 } from "react-icons/fa";
 import { FloatingButtonComponent } from "./floating-actions";
@@ -17,7 +16,7 @@ export const FloatingActionsComponent = () => {
   const { colorMode, setColorMode, setDriver } =
     useContext(AppContext);
   const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver, setShowAddNode } = useDashboardContext();
+  const { driver } = useDashboardContext();
   return (
     <Panel position="top-right" className="flex flex-col gap-2">
       <FloatingButtonComponent
@@ -29,12 +28,6 @@ export const FloatingActionsComponent = () => {
         ) : (
           <FaMoon className="m-auto" />
         )}
-      </FloatingButtonComponent>
-      <FloatingButtonComponent
-        tooltip="Add Node"
-        onClick={() => setShowAddNode(true)}
-      >
-        <FaPlus className="m-auto" />
       </FloatingButtonComponent>
       <FloatingButtonComponent
         tooltip="Refresh"
