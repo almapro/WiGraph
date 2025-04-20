@@ -27,8 +27,12 @@ export const DashboardView = () => {
   const { setRelationToAdd, setShowAddRelation, setRelationToDelete, setShowDeleteRelation, setHoveringNode, setReconnecting, setContextMenu, driver, setShowAddNode, setDragIntersectingNodes, setDragging } = useDashboardContext();
   const onConnect: OnConnect = useCallback(
     (connection) => {
-      setRelationToAdd(connection);
-      setShowAddRelation(true);
+      const source = nodes.find((node) => node.id === connection.source);
+      const target = nodes.find((node) => node.id === connection.target);
+      if (source?.type === "client" && target?.type === "wifi") {
+        setRelationToAdd(connection);
+        setShowAddRelation(true);
+      }
     },
     [],
   );
