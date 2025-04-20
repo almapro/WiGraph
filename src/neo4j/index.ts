@@ -2,6 +2,7 @@ import { Driver } from "neo4j-driver";
 import { AppNode } from "../nodes/types";
 import { Client, Wifi } from "../nodes";
 import { Edge } from "@xyflow/react";
+import { getLayoutedElements } from "../dagre";
 export const getNodes = async (
   driver: Driver,
   setNodes: (nodes: AppNode[]) => void,
@@ -95,7 +96,6 @@ export const getNodes = async (
             },
         }
     });
-    setNodes([...nodes, ...clientsNodes]);
     const edges: Edge[] = [];
     records.map((record) => {
         edges.push(...record.incoming_edges.map((edge) => ({
@@ -119,7 +119,9 @@ export const getNodes = async (
             }
         })))
     });
-    setEdges(edges);
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([...nodes, ...clientsNodes], edges);
+    setNodes(layoutedNodes);
+    setEdges(layoutedEdges);
     fitView();
     await session.close();
   } catch (error) {
