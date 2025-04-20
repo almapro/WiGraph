@@ -36,7 +36,11 @@ export const ConvertToWifiComponent = () => {
         await session.run(`
             MATCH (w:Wifi {id: $nodeId})
             SET w.probe = false, w.bssid = $bssid
-            RETURN w
+            WITH w
+            MATCH (c:Client)-[r]->(w)
+            WHERE TYPE(r) <> 'CONNECTS_TO'
+            DELETE r
+            CREATE (c)-[:CONNECTS_TO]->(w)
             `,
             { nodeId: activeNode.id, bssid });
         await session.close();
