@@ -14,7 +14,7 @@ import {
 import { useCallback, useEffect } from "react";
 import { initialNodes, nodeTypes } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
-import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddConnectionPanel } from "../components";
+import { ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddNodePanel, AddWifiNodeComponent, AddClientComponent } from "../components";
 import { useTitle } from "react-use";
 import { useAppContext, useDashboardContext } from "../context";
 import { getNodes } from "../neo4j";
@@ -24,7 +24,7 @@ export const DashboardView = () => {
   const { colorMode } = useAppContext();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { setRelationToAdd, setShowAddRelation, setRelationToDelete, setShowDeleteRelation, setHoveringNode, setReconnecting, setContextMenu, driver } = useDashboardContext();
+  const { setRelationToAdd, setShowAddRelation, setRelationToDelete, setShowDeleteRelation, setHoveringNode, setReconnecting, setContextMenu, driver, setShowAddNode } = useDashboardContext();
   const onConnect: OnConnect = useCallback(
     (connection) => {
       setRelationToAdd(connection);
@@ -84,15 +84,23 @@ export const DashboardView = () => {
       }}
       onReconnectEnd={onReconnectEnd}
       onReconnect={() => {}}
+      onDragOver={(e) => {
+        e.preventDefault();
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setShowAddNode(true);
+      }}
     >
       <ContextMenuComponent />
       <DeleteNodeComponent />
       <DeleteRelationComponent />
-      <AddNodeComponent />
+      <AddWifiNodeComponent />
+      <AddClientComponent />
       <AddRelationComponent />
       <AddClientsToWifiComponent />
       <ConvertToWifiComponent />
-      <AddConnectionPanel />
+      <AddNodePanel />
       <Background variant={BackgroundVariant.Dots} />
       <MiniMap />
       <Controls />
