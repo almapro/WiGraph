@@ -10,25 +10,23 @@ import {
   useReactFlow,
   Edge,
   MarkerType,
-  Connection,
 } from "@xyflow/react";
 import { Driver } from "neo4j-driver";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { initialNodes, nodeTypes } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
 import { AddNodeComponent, ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddConnectionPanel } from "../components";
 import { useTitle } from "react-use";
-import { AppContext, DashboardContext } from "../context";
+import { AppContext, useDashboardContext } from "../context";
 import { getNodes } from "../neo4j";
-import { AppNode, NodeType } from "../nodes";
+import { DashboardProvider } from "../providers";
 
 export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   useTitle("WiGraph - Dashboard");
   const { colorMode } = useContext(AppContext);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [showAddRelation, setShowAddRelation] = useState(false);
-  const [relationToAdd, setRelationToAdd] = useState<Connection | null>(null);
+  const { setRelationToAdd, setShowAddRelation, setRelationToDelete, setShowDeleteRelation, setHoveringNode, setReconnecting, setContextMenu } = useDashboardContext();
   const onConnect: OnConnect = useCallback(
     (connection) => {
       setRelationToAdd(connection);
@@ -40,22 +38,7 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   useEffect(() => {
     getNodes(driver, setNodes, setEdges, fitView);
   }, [setNodes, driver, fitView]);
-  const [contextMenu, setContextMenu] = useState<{
-    x: number;
-    y: number;
-    node: AppNode;
-  } | null>(null);
-  const [showConvertingToWifi, setShowConvertingToWifi] = useState(false);
-  const [showAddingClientsToWifi, setShowAddingClientsToWifi] = useState(false);
-  const [showEditingNode, setShowEditingNode] = useState(false);
-  const [showDeleteNode, setShowDeleteNode] = useState(false);
-  const [activeNode, setActiveNode] = useState<AppNode | null>(null);
-  const [showAddNode, setShowAddNode] = useState(false);
-  const [showAddType, setShowAddType] = useState<NodeType>("WIFI");
-  const [showDeleteRelation, setShowDeleteRelation] = useState(false);
-  const [relationToDelete, setRelationToDelete] = useState<Edge | null>(null);
-  const [hoveringNode, setHoveringNode] = useState<AppNode | null>(null);
-  const [reconnecting, setReconnecting] = useState(false);
+
   const defaultEdgeOptions = {
     type: 'floating',
     markerEnd: {
@@ -70,39 +53,7 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
   }, []);
   
   return (
-    <DashboardContext.Provider
-      value={{
-        driver,
-        contextMenu,
-        setContextMenu,
-        showConvertingToWifi,
-        setShowConvertingToWifi,
-        showAddingClientsToWifi,
-        setShowAddingClientsToWifi,
-        showEditingNode,
-        setShowEditingNode,
-        showDeleteNode,
-        setShowDeleteNode,
-        activeNode,
-        setActiveNode,
-        showAddNode,
-        setShowAddNode,
-        showAddType,
-        setShowAddType,
-        showDeleteRelation,
-        setShowDeleteRelation,
-        relationToDelete,
-        setRelationToDelete,
-        showAddRelation,
-        setShowAddRelation,
-        relationToAdd,
-        setRelationToAdd,
-        hoveringNode,
-        setHoveringNode,
-        reconnecting,
-        setReconnecting,
-      }}
-    >
+    <DashboardProvider driver={driver}>
       <ReactFlow
         colorMode={colorMode}
         nodes={nodes}
@@ -150,6 +101,6 @@ export const DashboardView: React.FC<{ driver: Driver }> = ({driver}) => {
         <Controls />
         <FloatingActionsComponent />
       </ReactFlow>
-    </DashboardContext.Provider>
+    </DashboardProvider>
   );
 };
