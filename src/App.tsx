@@ -1,45 +1,16 @@
-import { useEffect, useState } from "react";
-import { ColorMode, ReactFlowProvider } from "@xyflow/react";
-import { useLocalStorage } from "react-use";
+import { ReactFlowProvider } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { RestrictedRoute } from "./components";
-import { ThemeProvider as Flowbite, useThemeMode } from "flowbite-react";
+import { ThemeProvider as Flowbite } from "flowbite-react";
 import { Route, Routes } from "react-router";
 import { ConnectView } from "./views";
-import { Driver } from "neo4j-driver";
 import { SnackbarProvider } from "notistack";
-import { AppContext } from "./context";
 import { theme } from "./flowbite.theme";
+import { AppProvider } from "./providers";
 
 export default function App() {
-  const [storedColorMode, setStoredColorMode] = useLocalStorage(
-    "colorMode",
-    "system",
-  );
-  const { setMode } = useThemeMode();
-  useEffect(() => {
-    setMode(storedColorMode === "dark" ? "light" : "dark");
-  }, [setMode, storedColorMode]);
-  const [colorMode, setColorMode] = useState<ColorMode>(
-    storedColorMode as ColorMode,
-  );
-  useEffect(() => {
-    setStoredColorMode(colorMode);
-    setMode(colorMode === "dark" ? "dark" : "light");
-  }, [colorMode, setStoredColorMode, setMode]);
-  const [driver, setDriver] = useState<Driver | null>(null);
-  const [autoConnect, setAutoConnect] = useState(true);
   return (
-    <AppContext.Provider
-      value={{
-        driver,
-        setDriver,
-        colorMode,
-        setColorMode,
-        autoConnect,
-        setAutoConnect,
-      }}
-    >
+    <AppProvider>
       <Flowbite theme={theme}>
         <SnackbarProvider
           maxSnack={3}
@@ -53,6 +24,6 @@ export default function App() {
           </ReactFlowProvider>
         </SnackbarProvider>
       </Flowbite>
-    </AppContext.Provider>
+    </AppProvider>
   );
 }

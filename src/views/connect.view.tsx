@@ -2,11 +2,11 @@ import { auth, driver as neo4jDriver, Neo4jError } from "neo4j-driver";
 import { Navigate } from "react-router";
 import { FloatingButtonComponent } from "../components";
 import { FaEye, FaEyeSlash, FaMoon, FaSun } from "react-icons/fa";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocalStorage, useTitle } from "react-use";
 import { Label, TextInput, Button } from "flowbite-react";
 import { useSnackbar } from "notistack";
-import { AppContext } from "../context";
+import { useAppContext } from "../context";
 
 export const ConnectView = () => {
   useTitle("WiGraph - Connect");
@@ -17,7 +17,7 @@ export const ConnectView = () => {
     colorMode,
     autoConnect,
     setAutoConnect,
-  } = useContext(AppContext);
+  } = useAppContext();
   const { enqueueSnackbar } = useSnackbar();
   const [localUrl, setLocalUrl] = useLocalStorage<string>("neo4j_url");
   const [localUsername, setLocalUsername] =

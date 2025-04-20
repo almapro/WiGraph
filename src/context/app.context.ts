@@ -1,6 +1,6 @@
 import { ColorMode } from "@xyflow/react";
 import { Driver } from "neo4j-driver";
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 
 export type AppContextProps = {
     driver: Driver | null
@@ -20,3 +20,6 @@ export const AppContext = createContext<AppContextProps>({
     setAutoConnect: () => { },
 })
 
+export const useAppContext = () => {
+    return useContext(AppContext);
+}
