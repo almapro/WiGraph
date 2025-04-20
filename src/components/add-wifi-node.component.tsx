@@ -1,4 +1,4 @@
-import { Button, HelperText, Label, TextInput, Tooltip, Modal, ModalHeader, ModalBody, ModalFooter } from "flowbite-react";
+import { Button, HelperText, Label, TextInput, Tooltip, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb, BreadcrumbItem } from "flowbite-react";
 import { FC, useEffect, useState } from "react";
 import _ from "lodash";
 import { v4 } from "uuid";
@@ -9,11 +9,12 @@ import { useDashboardContext } from '../context';
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../neo4j";
 import { PiPrinterFill } from "react-icons/pi";
+import { ClientNode } from "../nodes";
 
 export const AddWifiNodeComponent: FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver, showAddNode, setShowAddNode, showAddType } = useDashboardContext();
+  const { driver, showAddNode, setShowAddNode, showAddType, setDragIntersectingNodes, dragIntersectingNodes } = useDashboardContext();
   const [id, setId] = useState(v4());
   const [essid, setEssid] = useState("");
   const [bssid, setBssid] = useState("");
@@ -59,6 +60,15 @@ export const AddWifiNodeComponent: FC = () => {
           password: CASE WHEN $password = '' THEN null ELSE $password END,
           pin: CASE WHEN $pin = '' THEN null ELSE $pin END
         })
+        WITH n
+        UNWIND $relations AS relation
+        MATCH (c:Client {id: relation.id})
+        FOREACH (probe IN CASE WHEN n.probe THEN [1] ELSE [] END |
+          CREATE (c)-[:KNOWS]->(n)
+        )
+        FOREACH (probe IN CASE WHEN NOT n.probe THEN [1] ELSE [] END |
+          CREATE (c)-[:CONNECTS_TO]->(n)
+        )
         `,
         {
           id,
@@ -68,12 +78,12 @@ export const AddWifiNodeComponent: FC = () => {
           hotspot,
           printer,
           password,
-          pin
+          pin,
+          relations: dragIntersectingNodes.filter(node => node.type === "client").map(node => ({ id: (node as ClientNode).id }))
         },
       )
       .then(async () => {
         enqueueSnackbar("Node added successfully", { variant: "success" });
-        setShowAddNode(false);
         setId(v4());
         setEssid("");
         setBssid("");
@@ -84,11 +94,12 @@ export const AddWifiNodeComponent: FC = () => {
         setHotspot(false);
         session.close();
         await getNodes(driver, setNodes, setEdges, fitView);
+        setDragIntersectingNodes([]);
+        setShowAddNode(false);
       });
   };
 
   const handleCancel = () => {
-    setShowAddNode(false);
     setId(v4());
     setEssid("");
     setBssid("");
@@ -98,6 +109,8 @@ export const AddWifiNodeComponent: FC = () => {
     setProbe(false);
     setHotspot(false);
     setPrinter(false);
+    setDragIntersectingNodes([]);
+    setShowAddNode(false);
   };
 
   if (showAddType !== "WIFI") return null;
@@ -107,6 +120,22 @@ export const AddWifiNodeComponent: FC = () => {
       <ModalHeader>Add WiFi Node</ModalHeader>
       <form onSubmit={handleOnSubmit}>
         <ModalBody className="flex flex-col gap-4">
+          {dragIntersectingNodes.filter(node => node.type === "client").length > 0 && (
+          <div className="flex flex-col gap-2">
+            <div className="block">
+              <Label>Relations to add:</Label>
+            </div>
+            {dragIntersectingNodes
+              .filter(node => node.type === "client")
+              .map((node) => (
+                <Breadcrumb key={node.id} className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                  <BreadcrumbItem>{(node as ClientNode).data.name} - {(node as ClientNode).data.macAddress}</BreadcrumbItem>
+                  <BreadcrumbItem>{probe ? "KNOWS" : "CONNECTS_TO"}</BreadcrumbItem>
+                  <BreadcrumbItem>This node</BreadcrumbItem>
+                </Breadcrumb>
+              ))}
+          </div>
+          )}
           <div>
             <div className="mb-2 block">
               <Label htmlFor="essid">ESSID *</Label>

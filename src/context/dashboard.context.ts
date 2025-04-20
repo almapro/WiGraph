@@ -41,6 +41,10 @@ export type DashboardContextProps = {
     setHoveringNode: (hoveringNode: AppNode | null) => void;
     reconnecting: boolean;
     setReconnecting: (reconnecting: boolean) => void;
+    dragging: boolean;
+    setDragging: (dragging: boolean) => void;
+    dragIntersectingNodes: AppNode[];
+    setDragIntersectingNodes: (dragIntersectingNodes: AppNode[]) => void;
 };
 
 export const DashboardContext = createContext<DashboardContextProps>({
@@ -73,6 +77,10 @@ export const DashboardContext = createContext<DashboardContextProps>({
     setHoveringNode: () => {},
     reconnecting: false,
     setReconnecting: () => {},
+    dragging: false,
+    setDragging: () => {},
+    dragIntersectingNodes: [],
+    setDragIntersectingNodes: () => {},
 });
 
 export const useDashboardContext = () => {

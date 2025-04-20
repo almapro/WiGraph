@@ -12,7 +12,7 @@ import {
   MarkerType,
 } from "@xyflow/react";
 import { useCallback, useEffect } from "react";
-import { initialNodes, nodeTypes } from "../nodes";
+import { initialNodes, nodeTypes, AppNode } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
 import { ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddNodePanel, AddWifiNodeComponent, AddClientComponent } from "../components";
 import { useTitle } from "react-use";
@@ -24,7 +24,7 @@ export const DashboardView = () => {
   const { colorMode } = useAppContext();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { setRelationToAdd, setShowAddRelation, setRelationToDelete, setShowDeleteRelation, setHoveringNode, setReconnecting, setContextMenu, driver, setShowAddNode } = useDashboardContext();
+  const { setRelationToAdd, setShowAddRelation, setRelationToDelete, setShowDeleteRelation, setHoveringNode, setReconnecting, setContextMenu, driver, setShowAddNode, setDragIntersectingNodes, setDragging } = useDashboardContext();
   const onConnect: OnConnect = useCallback(
     (connection) => {
       setRelationToAdd(connection);
@@ -32,7 +32,7 @@ export const DashboardView = () => {
     },
     [],
   );
-  const { fitView } = useReactFlow();
+  const { fitView, screenToFlowPosition, getIntersectingNodes } = useReactFlow();
   useEffect(() => {
     getNodes(driver, setNodes, setEdges, fitView);
   }, [setNodes, driver, fitView]);
@@ -84,8 +84,17 @@ export const DashboardView = () => {
       }}
       onReconnectEnd={onReconnectEnd}
       onReconnect={() => {}}
+      onDragStart={() => {
+        setDragging(true);
+      }}
+      onDragEnd={() => {
+        setDragging(false);
+      }}
       onDragOver={(e) => {
         e.preventDefault();
+        const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
+        const intersectingNodes = getIntersectingNodes({ ...position, width: 5, height: 5 });
+        setDragIntersectingNodes(intersectingNodes as AppNode[]);
       }}
       onDrop={(e) => {
         e.preventDefault();

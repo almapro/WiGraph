@@ -1,4 +1,4 @@
-import { HelperText, Label, TextInput, Button, Tooltip, Modal, ModalHeader, ModalBody, ModalFooter } from "flowbite-react";
+import { HelperText, Label, TextInput, Button, Tooltip, Modal, ModalHeader, ModalBody, ModalFooter, BreadcrumbItem, Breadcrumb } from "flowbite-react";
 import { FC, useState } from "react";
 import { v4 } from "uuid";
 import { useSnackbar } from "notistack";
@@ -6,6 +6,7 @@ import { useDashboardContext } from '../context';
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../neo4j";
 import { FaDesktop, FaLaptop, FaMobileAlt, FaTabletAlt } from "react-icons/fa";
+import { WifiNode } from "../nodes";
     
 interface ClientFormData {
   id: string;
@@ -21,7 +22,7 @@ interface ClientFormData {
 export const AddClientComponent: FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver, showAddNode, setShowAddNode, showAddType } = useDashboardContext();
+  const { driver, showAddNode, setShowAddNode, showAddType, dragIntersectingNodes, setDragIntersectingNodes, setShowAddType } = useDashboardContext();
   const [client, setClient] = useState<ClientFormData>({
     id: v4(),
     name: "",
@@ -67,15 +68,27 @@ export const AddClientComponent: FC = () => {
         FOREACH (_ IN CASE WHEN $ipAddress IS NOT NULL AND $ipAddress <> '' THEN [1] ELSE [] END |
           SET c.ipAddress = $ipAddress
         )
+        WITH c
+        UNWIND $relations AS relation
+        MATCH (n:Wifi {id: relation.id})
+        FOREACH (probe IN CASE WHEN n.probe THEN [1] ELSE [] END |
+          CREATE (c)-[:KNOWS]->(n)
+        )
+        FOREACH (probe IN CASE WHEN NOT n.probe THEN [1] ELSE [] END |
+          CREATE (c)-[:CONNECTS_TO]->(n)
+        )
       `;
 
       await session.run(query, { 
         ...client,
-        macAddress
+        macAddress,
+        relations: dragIntersectingNodes.filter(node => node.type === "wifi").map(node => ({ id: (node as WifiNode).id }))
       });
 
       enqueueSnackbar("Client added successfully", { variant: "success" });
       await getNodes(driver, setNodes, setEdges, fitView);
+      setDragIntersectingNodes([]);
+      setShowAddType("WIFI");
       setShowAddNode(false);
     } catch (error) {
       console.error(error);
@@ -84,7 +97,6 @@ export const AddClientComponent: FC = () => {
   };
 
   const handleCancel = () => {
-    setShowAddNode(false);
     setClient({
       id: v4(),
       name: "",
@@ -95,6 +107,9 @@ export const AddClientComponent: FC = () => {
       tablet: false,
       desktop: false
     });
+    setDragIntersectingNodes([]);
+    setShowAddType("WIFI");
+    setShowAddNode(false);
   };
 
   if (showAddType !== "CLIENT") return null;
@@ -104,6 +119,22 @@ export const AddClientComponent: FC = () => {
       <ModalHeader>Add Client Node</ModalHeader>
       <form onSubmit={handleOnSubmit}>
         <ModalBody className="flex flex-col gap-4">
+          {dragIntersectingNodes.filter(node => node.type === "wifi").length > 0 && (
+            <div className="flex flex-col gap-2">
+              <div className="block">
+                <Label>Relations to add:</Label> 
+              </div>
+              {dragIntersectingNodes
+                .filter(node => node.type === "wifi")
+                .map((node) => (
+                  <Breadcrumb key={node.id} className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                    <BreadcrumbItem>This node</BreadcrumbItem>
+                    <BreadcrumbItem>{(node as WifiNode).data.probe ? "KNOWS" : "CONNECTS_TO"}</BreadcrumbItem>
+                    <BreadcrumbItem>{(node as WifiNode).data.essid} - {(node as WifiNode).data.bssid !== "" ? (node as WifiNode).data.bssid : "(unknown)"}</BreadcrumbItem>
+                  </Breadcrumb>
+                ))}
+            </div>
+          )}
           <div className="flex flex-col gap-2">
             <Label htmlFor="name">Client Name *</Label>
             <TextInput

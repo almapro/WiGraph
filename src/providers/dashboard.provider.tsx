@@ -24,6 +24,8 @@ export const DashboardProvider: FC<{ children: React.ReactNode, driver: Driver }
     const [relationToAdd, setRelationToAdd] = useState<Connection | null>(null);
     const [hoveringNode, setHoveringNode] = useState<AppNode | null>(null);
     const [reconnecting, setReconnecting] = useState(false);
+    const [dragging, setDragging] = useState(false);
+    const [dragIntersectingNodes, setDragIntersectingNodes] = useState<AppNode[]>([]);
     return (
         <DashboardContext.Provider value={{
             driver,
@@ -55,6 +57,10 @@ export const DashboardProvider: FC<{ children: React.ReactNode, driver: Driver }
             setHoveringNode,
             reconnecting,
             setReconnecting,
+            dragging,
+            setDragging,
+            dragIntersectingNodes,
+            setDragIntersectingNodes,
         }}>{children}</DashboardContext.Provider>
     );
 };
