@@ -3,11 +3,13 @@ import type {
   BuiltInNode
 } from "@xyflow/react";
 
-export type PositionLoggerNode = Node<{ label: string }, "position-logger">;
+
+export type NewNodeGroupNode = Node<{}, "newNodeGroup">;
+export type NewWifiNode = Node<{}, "newWifiNode">;
+export type NewClientNode = Node<{}, "newClientNode">;
 export type WifiNode = Node<Wifi, "wifi">;
 export type ClientNode = Node<Client, "client">;
-export type AppNode = BuiltInNode | PositionLoggerNode | WifiNode | ClientNode;
-
+export type AppNode = BuiltInNode | NewNodeGroupNode | NewWifiNode | NewClientNode | WifiNode | ClientNode;
 
 export type NodeType =
   | "WIFI"
@@ -26,7 +28,8 @@ export type RelationType =
   | "KNOWS"
   | "OWNS"
   | "HAS_FLOOR"
-  | "CONNECTS_TO";
+  | "CONNECTS_TO"
+  | "PROVIDED_BY";
 
 export type Building = {
   type: "BULDING" | "HOUSE";

@@ -3,6 +3,10 @@ import type { NodeTypes } from "@xyflow/react";
 import { AppNode } from "./types";
 import { WifiNode } from "./wifi.node";
 import { ClientNode } from "./client.node";
+import { NewNodeGroupNode } from "./new-node-group.node";
+import { NewWifiNode } from "./new-wifi.node";
+import { NewClientNode } from "./new-client.node";
+
 export const initialNodes: AppNode[] = [
   // { id: "a", type: "input", position: { x: 0, y: 0 }, data: { label: "wire" } },
   // {
@@ -40,6 +44,9 @@ export const initialNodes: AppNode[] = [
 export const nodeTypes = {
   wifi: WifiNode,
   client: ClientNode,
+  newNodeGroup: NewNodeGroupNode,
+  newWifiNode: NewWifiNode,
+  newClientNode: NewClientNode,
 } satisfies NodeTypes;
 
 export * from "./types";

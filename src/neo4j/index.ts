@@ -95,20 +95,19 @@ export const getNodes = async (
             },
         }
     });
-
     setNodes([...nodes, ...clientsNodes]);
     const edges: Edge[] = [];
-        records.map((record) => {
-            edges.push(...record.incoming_edges.map((edge) => ({
-                id: `${edge.source}-${edge.target}`,
-                source: edge.source,
-                target: edge.target,
-                type: "custom",
-                data: {
-                    label: edge.type
-                }
-          })))
-        });
+    records.map((record) => {
+        edges.push(...record.incoming_edges.map((edge) => ({
+            id: `${edge.source}-${edge.target}`,
+            source: edge.source,
+            target: edge.target,
+            type: "custom",
+            data: {
+                label: edge.type
+            }
+        })))
+    });
     clientsRecords.map((record) => {
         edges.push(...record.incoming_edges.map((edge) => ({
             id: `${edge.source}-${edge.target}`,
@@ -119,7 +118,7 @@ export const getNodes = async (
                 label: edge.type
             }
         })))
-    })
+    });
     setEdges(edges);
     fitView();
     await session.close();
