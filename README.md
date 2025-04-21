@@ -75,6 +75,10 @@ yarn dev
    - Select the file you want to import
    - WiGraph will automatically parse the data and create a visual representation of the network
 
+## Todo
+
+- [ ] Add support for real-time data
+
 ## Contributing
 
 1. Fork the repository
