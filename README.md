@@ -60,6 +60,7 @@ yarn dev
    - Drag a connection between nodes to create a relation
 
 ### Importing Data
+There are two ways to import data into WiGraph:
 
 #### Using Airodump-ng
 1. Generate a `.csv` or `.netxml` file using airodump-ng
