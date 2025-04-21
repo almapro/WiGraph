@@ -34,7 +34,7 @@ export const DashboardView = () => {
         setShowAddRelation(true);
       }
     },
-    [],
+    [nodes],
   );
   const { fitView, screenToFlowPosition, getIntersectingNodes } = useReactFlow();
   useEffect(() => {
