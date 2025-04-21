@@ -46,22 +46,6 @@ yarn dev
 
 ## Usage
 
-### Importing Data
-
-    - Airodump-ng
-        1. Generate a `.csv` or `.netxml` file using airodump-ng
-        2. Import the file into WiGraph:
-            - Click on the "Import from..." button in the top-right corner
-            - Select the file you want to import
-            - WiGraph will automatically parse the data and create a visual representation of the network
-
-    - Kismet
-        1. Generate a `.netxml` or `.kismet` file using Kismet
-        2. Import the file into WiGraph:
-            - Click on the "Import from..." button in the top-right corner
-            - Select the file you want to import
-            - WiGraph will automatically parse the data and create a visual representation of the network
-
 ### Creating a Network Map
 
 1. Start by adding a Wifi node:
@@ -74,6 +58,23 @@ yarn dev
 
 3. Add relations:
    - Drag a connection between nodes to create a relation
+
+### Importing Data
+There are two ways to import data into WiGraph:
+
+#### Using Airodump-ng
+1. Generate a `.csv` or `.netxml` file using airodump-ng
+2. Import the file into WiGraph:
+   - Click on the "Import from..." button in the top-right corner
+   - Select the file you want to import
+   - WiGraph will automatically parse the data and create a visual representation of the network
+
+#### Using Kismet
+1. Generate a `.netxml` or `.kismet` file using Kismet
+2. Import the file into WiGraph:
+   - Click on the "Import from..." button in the top-right corner
+   - Select the file you want to import
+   - WiGraph will automatically parse the data and create a visual representation of the network
 
 ## Contributing
 
