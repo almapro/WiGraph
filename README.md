@@ -68,11 +68,10 @@ yarn dev
 
 1. Start by adding a Wifi node:
    - Drag and drop a Wifi node from the node palette
-   - Enter the necessary information (e.g., SSID, BSSID, Channel)
+   - Enter the necessary information (e.g., SSID, BSSID, Password)
 
 2. Add client nodes:
    - Drag and drop a Client node from the node palette
-   - Click on the Wifi node to connect it
    - Enter the necessary information (e.g., Client Name, MAC Address, IP Address)
 
 3. Add relations:
