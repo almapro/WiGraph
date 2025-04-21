@@ -29,13 +29,16 @@ WiGraph is designed to work alongside popular wireless network analysis tools:
 
 ### Steps
 
-1. Clone the repository:```bash
+1. Clone the repository:
+```bash
 git clone https://github.com/almapro/WiGraph
 ```
+
 2. Install dependencies:
 ```bash
 yarn install
 ```
+
 3. Start the development server:
 ```bash
 yarn dev
