@@ -7,7 +7,7 @@ import { enqueueSnackbar } from "notistack";
 import { WifiNode } from "../nodes/types";
 
 export const ConvertToWifiComponent = () => {
-  const { driver, showConvertingToWifi, setShowConvertingToWifi, activeNode } = useDashboardContext();
+  const { driver, showConvertingToWifi, setShowConvertingToWifi, activeNode, setActiveNode } = useDashboardContext();
   const { setNodes, setEdges, fitView } = useReactFlow();
   const [bssid, setBssid] = useState("");
   const [bssidError, setBssidError] = useState(false);
@@ -53,6 +53,7 @@ export const ConvertToWifiComponent = () => {
         setBssidPart5("");
         setBssidPart6("");
         await getNodes(driver, setNodes, setEdges, fitView);
+        setActiveNode(null);
     } catch (error) {
       console.error(error);
       enqueueSnackbar("Failed to convert probe to WiFi", { variant: "error" });
@@ -66,6 +67,7 @@ export const ConvertToWifiComponent = () => {
     setBssidPart4("");
     setBssidPart5("");
     setBssidPart6("");
+    setActiveNode(null);
   }
 
   return (

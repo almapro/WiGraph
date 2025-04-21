@@ -14,7 +14,7 @@ import {
 import { useCallback, useEffect } from "react";
 import { initialNodes, nodeTypes, AppNode } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
-import { ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddNodePanel, AddWifiNodeComponent, AddClientComponent } from "../components";
+import { ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddNodePanel, AddWifiNodeComponent, AddClientComponent, EditWifiNodeComponent, EditClientNodeComponent } from "../components";
 import { useTitle } from "react-use";
 import { useAppContext, useDashboardContext } from "../context";
 import { getNodes } from "../neo4j";
@@ -29,7 +29,7 @@ export const DashboardView = () => {
     (connection) => {
       const source = nodes.find((node) => node.id === connection.source);
       const target = nodes.find((node) => node.id === connection.target);
-      if (source?.type === "client" && target?.type === "wifi") {
+      if ((source?.type === "client" && target?.type === "wifi") || (source?.type === "wifi" && target?.type === "client")) {
         setRelationToAdd(connection);
         setShowAddRelation(true);
       }
@@ -108,6 +108,8 @@ export const DashboardView = () => {
       <ContextMenuComponent />
       <DeleteNodeComponent />
       <DeleteRelationComponent />
+      <EditWifiNodeComponent />
+      <EditClientNodeComponent />
       <AddWifiNodeComponent />
       <AddClientComponent />
       <AddRelationComponent />

@@ -28,8 +28,13 @@ export const DeleteRelationComponent = () => {
     }
   };
 
+  const handleCancel = () => {
+    setShowDeleteRelation(false);
+    setRelationToDelete(null);
+  };
+
   return (
-    <Modal show={showDeleteRelation} onClose={() => setShowDeleteRelation(false)}>
+    <Modal show={showDeleteRelation} onClose={handleCancel}>
       <ModalHeader>Delete Relation</ModalHeader>
       <ModalBody>
         <div className="text-gray-700 dark:text-gray-200">
@@ -38,7 +43,7 @@ export const DeleteRelationComponent = () => {
       </ModalBody>
       <ModalFooter>
         <Button color="red" onClick={handleDelete}>Delete</Button>
-        <Button color="gray" onClick={() => setShowDeleteRelation(false)}>
+        <Button color="gray" onClick={handleCancel}>
           Cancel
         </Button>
       </ModalFooter>

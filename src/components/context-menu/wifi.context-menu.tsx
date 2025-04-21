@@ -1,18 +1,11 @@
 import { FC } from "react";
 import { FaWifi, FaLaptop, FaEdit, FaTrash } from "react-icons/fa";
-import { AppNode, WifiNode } from "../../nodes/types";
+import { WifiNode } from "../../nodes";
 import { useDashboardContext } from "../../context";
 
-export const WifiContextMenu: FC<{ node: AppNode }> = ({ node }) => {
+export const WifiContextMenu: FC<{ node: WifiNode }> = ({ node }) => {
   const { setShowConvertingToWifi, setShowAddingClientsToWifi, setShowEditingNode, setShowDeleteNode, setActiveNode } = useDashboardContext();
-
-  const isWifiNode = (node: AppNode): node is WifiNode => {
-    return node.type === 'wifi';
-  };
-
-  if (!isWifiNode(node)) return null;
   setActiveNode(node);
-
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-48">
       <div className="py-1">

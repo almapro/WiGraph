@@ -1,37 +1,33 @@
-import { Button, HelperText, Label, TextInput, Tooltip, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb, BreadcrumbItem } from "flowbite-react";
-import { FC, useEffect, useState } from "react";
-import _ from "lodash";
-import { v4 } from "uuid";
-import { FaEye, FaEyeSlash, FaWifi } from "react-icons/fa";
-import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
-import { useSnackbar } from "notistack";
-import { useDashboardContext } from '../context';
-import { useReactFlow } from "@xyflow/react";
+import { Button, HelperText, Label, Modal, ModalBody, ModalFooter, ModalHeader, TextInput, Tooltip } from "flowbite-react";
+import { useEffect, useState } from "react";
+import { useDashboardContext } from "../context";
 import { getNodes } from "../neo4j";
+import { useReactFlow } from "@xyflow/react";
+import { enqueueSnackbar } from "notistack";
 import { PiPrinterFill } from "react-icons/pi";
-import { ClientNode } from "../nodes";
+import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
+import { FaWifi, FaEye, FaEyeSlash } from "react-icons/fa";
 
-export const AddWifiNodeComponent: FC = () => {
-  const { enqueueSnackbar } = useSnackbar();
-  const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver, showAddNode, setShowAddNode, showAddType, setDragIntersectingNodes, dragIntersectingNodes } = useDashboardContext();
-  const [id, setId] = useState(v4());
-  const [essid, setEssid] = useState("");
-  const [bssid, setBssid] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [pin, setPin] = useState("");
-  const [probe, setProbe] = useState(false);
-  const [hotspot, setHotspot] = useState(false);
-  const [printer, setPrinter] = useState(false);
+export const EditWifiNodeComponent = () => {
+  const { driver, showEditingNode, setShowEditingNode, activeNode, setActiveNode } = useDashboardContext();
+  if (!activeNode || activeNode.type !== "wifi") return null;
+  const { setNodes, setEdges, fitView } = useReactFlow();
+  const [essid, setEssid] = useState(activeNode.data.essid || "");
+  const [bssid, setBssid] = useState(activeNode.data.bssid || "");
   const [bssidError, setBssidError] = useState(false);
-  const [bssidPart1, setBssidPart1] = useState("");
-  const [bssidPart2, setBssidPart2] = useState("");
-  const [bssidPart3, setBssidPart3] = useState("");
-  const [bssidPart4, setBssidPart4] = useState("");
-  const [bssidPart5, setBssidPart5] = useState("");
-  const [bssidPart6, setBssidPart6] = useState("");
-  
+  const [bssidPart1, setBssidPart1] = useState(activeNode.data.bssid.split(":").length > 0 ? activeNode.data.bssid.split(":")[0] : "");
+  const [bssidPart2, setBssidPart2] = useState(activeNode.data.bssid.split(":").length > 1 ? activeNode.data.bssid.split(":")[1] : "");
+  const [bssidPart3, setBssidPart3] = useState(activeNode.data.bssid.split(":").length > 2 ? activeNode.data.bssid.split(":")[2] : "");
+  const [bssidPart4, setBssidPart4] = useState(activeNode.data.bssid.split(":").length > 3 ? activeNode.data.bssid.split(":")[3] : "");
+  const [bssidPart5, setBssidPart5] = useState(activeNode.data.bssid.split(":").length > 4 ? activeNode.data.bssid.split(":")[4] : "");
+  const [bssidPart6, setBssidPart6] = useState(activeNode.data.bssid.split(":").length > 5 ? activeNode.data.bssid.split(":")[5] : "");
+  const [password, setPassword] = useState(activeNode.data.password || "");
+  const [pin, setPin] = useState(activeNode.data.pin || "");
+  const [probe, setProbe] = useState(activeNode.data.probe || false);
+  const [hotspot, setHotspot] = useState(activeNode.data.hotspot || false);
+  const [printer, setPrinter] = useState(activeNode.data.printer || false);
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     let value = `${bssidPart1}:${bssidPart2}:${bssidPart3}:${bssidPart4}:${bssidPart5}:${bssidPart6}`;
     if (value.replaceAll(":", "").length === 0) {
@@ -44,106 +40,77 @@ export const AddWifiNodeComponent: FC = () => {
     setBssid(value);
   }, [bssidPart1, bssidPart2, bssidPart3, bssidPart4, bssidPart5, bssidPart6]);
 
-  const handleOnSubmit: React.FormEventHandler = async (e) => {
-    e.preventDefault();
-    const session = driver.session();
-    await session
-      .run(
-        `
-        CREATE (n:Wifi {
-          id: $id,
-          essid: $essid,
-          bssid: $bssid,
-          probe: $probe,
-          hotspot: $hotspot,
-          printer: $printer,
-          password: CASE WHEN $password = '' THEN null ELSE $password END,
-          pin: CASE WHEN $pin = '' THEN null ELSE $pin END
-        })
-        WITH n
-        UNWIND $relations AS relation
-        MATCH (c:Client {id: relation.id})
-        FOREACH (_ IN CASE WHEN n.probe THEN [1] ELSE [] END |
-          CREATE (c)-[:KNOWS]->(n)
-        )
-        FOREACH (_ IN CASE WHEN NOT n.probe THEN [1] ELSE [] END |
-          CREATE (c)-[:CONNECTS_TO]->(n)
-        )
-        `,
-        {
-          id,
-          essid,
-          bssid,
-          probe,
-          hotspot,
-          printer,
-          password,
-          pin,
-          relations: dragIntersectingNodes.filter(node => node.type === "client").map(node => ({ id: (node as ClientNode).id }))
-        },
-      )
-      .then(async () => {
-        enqueueSnackbar("Node added successfully", { variant: "success" });
-        setId(v4());
-        setEssid("");
-        setBssid("");
-        setPassword("");
-        setShowPassword(false);
-        setPin("");
-        setProbe(false);
-        setHotspot(false);
-        session.close();
-        await getNodes(driver, setNodes, setEdges, fitView);
-        setDragIntersectingNodes([]);
-        setShowAddNode(false);
+  const handleSubmit = async () => {
+    try {
+      const session = driver.session();
+      await session.run(`
+        MATCH (w:Wifi {id: $nodeId})
+        SET w.essid = $essid, w.bssid = $bssid, w.password = $password, w.pin = $pin, w.probe = $probe, w.hotspot = $hotspot, w.printer = $printer
+      `, { 
+        nodeId: activeNode.id, 
+        essid,
+        bssid: probe ? "" : bssid,
+        password,
+        pin,
+        probe,
+        hotspot,
+        printer
       });
+      await session.close();
+      enqueueSnackbar("WiFi node updated successfully", { variant: "success" });
+      setShowEditingNode(false);
+      await getNodes(driver, setNodes, setEdges, fitView);
+      setEssid("");
+      setBssidPart1("");
+      setBssidPart2("");
+      setBssidPart3("");
+      setBssidPart4("");
+      setBssidPart5("");
+      setBssidPart6("");
+      setPassword("");
+      setPin("");
+      setProbe(false);
+      setHotspot(false);
+      setPrinter(false);
+      setShowPassword(false);
+      setActiveNode(null);
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar("Failed to update WiFi node", { variant: "error" });
+    }
   };
 
   const handleCancel = () => {
-    setId(v4());
+    setShowEditingNode(false);
     setEssid("");
-    setBssid("");
+    setBssidPart1("");
+    setBssidPart2("");
+    setBssidPart3("");
+    setBssidPart4("");
+    setBssidPart5("");
+    setBssidPart6("");
     setPassword("");
-    setShowPassword(false);
     setPin("");
     setProbe(false);
     setHotspot(false);
     setPrinter(false);
-    setDragIntersectingNodes([]);
-    setShowAddNode(false);
+    setShowPassword(false);
+    setActiveNode(null);
   };
 
-  if (showAddType !== "WIFI") return null;
-
   return (
-    <Modal show={showAddNode} onClose={handleCancel}>
-      <ModalHeader>Add WiFi Node</ModalHeader>
-      <form onSubmit={handleOnSubmit}>
-        <ModalBody className="flex flex-col gap-4">
-          {dragIntersectingNodes.filter(node => node.type === "client").length > 0 && (
-          <div className="flex flex-col gap-2">
-            <div className="block">
-              <Label>Relations to add:</Label>
-            </div>
-            {dragIntersectingNodes
-              .filter(node => node.type === "client")
-              .map((node) => (
-                <Breadcrumb key={node.id} className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                  <BreadcrumbItem>{(node as ClientNode).data.name} - {(node as ClientNode).data.macAddress}</BreadcrumbItem>
-                  <BreadcrumbItem>{probe ? "KNOWS" : "CONNECTS_TO"}</BreadcrumbItem>
-                  <BreadcrumbItem>This node</BreadcrumbItem>
-                </Breadcrumb>
-              ))}
-          </div>
-          )}
+    <Modal show={showEditingNode} onClose={handleCancel}>
+      <ModalHeader>Edit WiFi Node</ModalHeader>
+      <ModalBody>
+        <div className="space-y-6">
           <div>
             <div className="mb-2 block">
               <Label htmlFor="essid">ESSID *</Label>
             </div>
             <TextInput
-              required
               id="essid"
-              placeholder="Wi-Fi Name"
+              required
+              placeholder="ESSID"
               value={essid}
               onChange={(e) => setEssid(e.target.value)}
             />
@@ -403,14 +370,12 @@ export const AddWifiNodeComponent: FC = () => {
               onChange={(e) => setPin(e.target.value)}
             />
           </div>
-        </ModalBody>
-        <ModalFooter>
-          <Button type="submit">Add Node</Button>
-          <Button color="gray" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </form>
+        </div>
+      </ModalBody>
+      <ModalFooter>
+        <Button onClick={handleSubmit} disabled={!essid || bssidError}>Save</Button>
+        <Button color="gray" onClick={handleCancel}>Cancel</Button>
+      </ModalFooter>
     </Modal>
   );
 };

@@ -5,7 +5,7 @@ import { deleteNode, getNodes } from "../neo4j";
 import { useSnackbar } from "notistack";
 
 export const DeleteNodeComponent = () => {
-  const { showDeleteNode, setShowDeleteNode, driver, activeNode } = useDashboardContext();
+  const { showDeleteNode, setShowDeleteNode, driver, activeNode, setActiveNode } = useDashboardContext();
   const { setNodes, setEdges, fitView } = useReactFlow();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -16,14 +16,20 @@ export const DeleteNodeComponent = () => {
         await getNodes(driver, setNodes, setEdges, fitView);
         enqueueSnackbar("Node deleted successfully", { variant: "success" });
         setShowDeleteNode(false);
+        setActiveNode(null);
     } catch (error) {
         console.error(error);
         enqueueSnackbar("Failed to delete node", { variant: "error" });
     }
   };
 
+  const handleCancel = () => {
+    setShowDeleteNode(false);
+    setActiveNode(null);
+  };
+
   return (
-    <Modal show={showDeleteNode} onClose={() => setShowDeleteNode(false)}>
+    <Modal show={showDeleteNode} onClose={handleCancel}>
       <ModalHeader>Delete Node</ModalHeader>
       <ModalBody>
         <div className="text-gray-700 dark:text-gray-200">
@@ -32,7 +38,7 @@ export const DeleteNodeComponent = () => {
       </ModalBody>
       <ModalFooter>
         <Button color="red" onClick={handleDelete}>Delete</Button>
-        <Button color="gray" onClick={() => setShowDeleteNode(false)}>
+        <Button color="gray" onClick={handleCancel}>
           Cancel
         </Button>
       </ModalFooter>
