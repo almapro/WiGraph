@@ -7,12 +7,12 @@ export const AddNodePanel = () => {
   const { setShowAddType } = useDashboardContext();
   return (
     <Panel
-      position="top-left"
-      className="flex flex-col gap-2 rounded-lg border-2 border-gray-500 bg-white p-2 dark:border-zinc-700 dark:bg-neutral-900 dark:text-white"
+      position="top-center"
+      className="flex gap-2 rounded-lg border-2 border-gray-500 bg-white p-2 dark:border-zinc-700 dark:bg-neutral-900 dark:text-white"
     >
         <Tooltip
           content="Drag to add WiFi Node"
-          placement='right'
+          placement='bottom'
           className='text-nowrap'
         >
             <div
@@ -28,7 +28,7 @@ export const AddNodePanel = () => {
         </Tooltip>
         <Tooltip
           content="Drag to add Client Node"
-          placement='right'
+          placement='bottom'
           className='text-nowrap'
         >
           <div
