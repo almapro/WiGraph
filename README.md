@@ -64,7 +64,7 @@ yarn dev
    - Select the file you want to import
    - WiGraph will automatically parse the data and create a visual representation of the network
 
-### Creating a Network Map
+## Creating a Network Map
 
 1. Start by adding a Wifi node:
    - Drag and drop a Wifi node from the node palette
@@ -76,31 +76,6 @@ yarn dev
 
 3. Add relations:
    - Drag a connection between nodes to create a relation
-
-### Editing Nodes
-
-1. Right click on a node
-2. Select "Edit Node" from the context menu
-3. Enter the necessary information (e.g., Client Name, MAC Address, IP Address)
-4. Click "Save" to update the node
-
-### Removing Nodes
-
-1. Right click on a node
-2. Select "Remove Node" from the context menu
-3. Click "Delete" to remove the node
-
-### Removing Relations
-
-1. Drag the relation from either end of the node
-2. Release on the canvas
-3. Click "Delete" to remove the relation
-
-### Exporting Data
-
-1. Click on the "Export" button in the top-right corner
-2. Select the format you want to export
-3. Click "Export" to export the data
 
 ## Contributing
 
