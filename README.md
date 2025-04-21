@@ -64,7 +64,7 @@ yarn dev
    - Select the file you want to import
    - WiGraph will automatically parse the data and create a visual representation of the network
 
-## Creating a Network Map
+### Creating a Network Map
 
 1. Start by adding a Wifi node:
    - Drag and drop a Wifi node from the node palette
