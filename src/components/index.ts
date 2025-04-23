@@ -12,3 +12,4 @@ export * from './delete-node.component';
 export * from './delete-relation.component';
 export * from './edit-wifi-node.component';
 export * from './edit-client-node.component';
+export * from './import-from.component';

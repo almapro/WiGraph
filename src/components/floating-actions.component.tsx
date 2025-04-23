@@ -16,7 +16,7 @@ export const FloatingActionsComponent = () => {
   const { colorMode, setColorMode, setDriver } =
     useContext(AppContext);
   const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver } = useDashboardContext();
+  const { driver, setShowImportFromFile } = useDashboardContext();
   return (
     <Panel position="top-right" className="flex flex-col gap-2">
       <FloatingButtonComponent
@@ -45,8 +45,7 @@ export const FloatingActionsComponent = () => {
       <FloatingButtonComponent
         tooltip="Import from..."
         onClick={() => {
-          driver?.close();
-          setDriver(null);
+          setShowImportFromFile(true);
         }}
       >
         <FaFileUpload className="m-auto" />

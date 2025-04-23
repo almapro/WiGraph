@@ -26,6 +26,7 @@ export const DashboardProvider: FC<{ children: React.ReactNode, driver: Driver }
     const [reconnecting, setReconnecting] = useState(false);
     const [dragging, setDragging] = useState(false);
     const [dragIntersectingNodes, setDragIntersectingNodes] = useState<AppNode[]>([]);
+    const [showImportFromFile, setShowImportFromFile] = useState(false);
     return (
         <DashboardContext.Provider value={{
             driver,
@@ -61,6 +62,8 @@ export const DashboardProvider: FC<{ children: React.ReactNode, driver: Driver }
             setDragging,
             dragIntersectingNodes,
             setDragIntersectingNodes,
+            showImportFromFile,
+            setShowImportFromFile,
         }}>{children}</DashboardContext.Provider>
     );
 };

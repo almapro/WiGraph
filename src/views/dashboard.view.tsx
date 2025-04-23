@@ -14,7 +14,7 @@ import {
 import { useCallback, useEffect } from "react";
 import { initialNodes, nodeTypes, AppNode } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
-import { ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddNodePanel, AddWifiNodeComponent, AddClientComponent, EditWifiNodeComponent, EditClientNodeComponent } from "../components";
+import { ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddNodePanel, AddWifiNodeComponent, AddClientComponent, EditWifiNodeComponent, EditClientNodeComponent, ImportFromComponent } from "../components";
 import { useTitle } from "react-use";
 import { useAppContext, useDashboardContext } from "../context";
 import { getNodes } from "../neo4j";
@@ -116,6 +116,7 @@ export const DashboardView = () => {
       <AddClientsToWifiComponent />
       <ConvertToWifiComponent />
       <AddNodePanel />
+      <ImportFromComponent />
       <Background variant={BackgroundVariant.Dots} />
       <MiniMap />
       <Controls />

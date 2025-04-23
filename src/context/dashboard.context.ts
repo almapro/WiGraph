@@ -45,6 +45,8 @@ export type DashboardContextProps = {
     setDragging: (dragging: boolean) => void;
     dragIntersectingNodes: AppNode[];
     setDragIntersectingNodes: (dragIntersectingNodes: AppNode[]) => void;
+    showImportFromFile: boolean;
+    setShowImportFromFile: (showImportFromFile: boolean) => void;   
 };
 
 export const DashboardContext = createContext<DashboardContextProps>({
@@ -81,6 +83,8 @@ export const DashboardContext = createContext<DashboardContextProps>({
     setDragging: () => {},
     dragIntersectingNodes: [],
     setDragIntersectingNodes: () => {},
+    showImportFromFile: false,
+    setShowImportFromFile: () => {},
 });
 
 export const useDashboardContext = () => {
