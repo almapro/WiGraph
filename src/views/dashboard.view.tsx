@@ -14,7 +14,21 @@ import {
 import { useCallback, useEffect } from "react";
 import { initialNodes, nodeTypes, AppNode } from "../nodes";
 import { initialEdges, edgeTypes } from "../edges";
-import { ContextMenuComponent, DeleteNodeComponent, DeleteRelationComponent, FloatingActionsComponent, AddRelationComponent, AddClientsToWifiComponent, ConvertToWifiComponent, AddNodePanel, AddWifiNodeComponent, AddClientComponent, EditWifiNodeComponent, EditClientNodeComponent, ImportFromComponent } from "../components";
+import {
+  ContextMenuComponent,
+  DeleteNodeComponent,
+  DeleteRelationComponent,
+  FloatingActionsComponent,
+  AddRelationComponent,
+  AddClientsToWifiComponent,
+  ConvertToWifiComponent,
+  AddNodePanel,
+  AddWifiNodeComponent,
+  AddClientComponent,
+  EditWifiNodeComponent,
+  EditClientNodeComponent,
+  ImportFromComponent,
+} from "../components";
 import { useTitle } from "react-use";
 import { useAppContext, useDashboardContext } from "../context";
 import { getNodes } from "../neo4j";
@@ -24,28 +38,46 @@ export const DashboardView = () => {
   const { colorMode } = useAppContext();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { setRelationToAdd, setShowAddRelation, setRelationToDelete, setShowDeleteRelation, setHoveringNode, setReconnecting, setContextMenu, driver, setShowAddNode, setDragIntersectingNodes, setDragging } = useDashboardContext();
+  const {
+    setRelationToAdd,
+    setShowAddRelation,
+    setRelationToDelete,
+    setShowDeleteRelation,
+    setHoveringNode,
+    setReconnecting,
+    setContextMenu,
+    driver,
+    setShowAddNode,
+    setDragIntersectingNodes,
+    setDragging,
+    selectedNode,
+    setSelectedNode,
+  } = useDashboardContext();
   const onConnect: OnConnect = useCallback(
     (connection) => {
       const source = nodes.find((node) => node.id === connection.source);
       const target = nodes.find((node) => node.id === connection.target);
-      if ((source?.type === "client" && target?.type === "wifi") || (source?.type === "wifi" && target?.type === "client")) {
+      if (
+        (source?.type === "client" && target?.type === "wifi") ||
+        (source?.type === "wifi" && target?.type === "client")
+      ) {
         setRelationToAdd(connection);
         setShowAddRelation(true);
       }
     },
     [nodes],
   );
-  const { fitView, screenToFlowPosition, getIntersectingNodes } = useReactFlow();
+  const { fitView, screenToFlowPosition, getIntersectingNodes } =
+    useReactFlow();
   useEffect(() => {
     getNodes(driver, setNodes, setEdges, fitView);
   }, [setNodes, driver, fitView]);
 
   const defaultEdgeOptions = {
-    type: 'floating',
+    type: "floating",
     markerEnd: {
       type: MarkerType.ArrowClosed,
-      color: '#b1b1b7',
+      color: "#b1b1b7",
     },
   };
   const onReconnectEnd = useCallback((__: any, edge: Edge) => {
@@ -53,7 +85,14 @@ export const DashboardView = () => {
     setRelationToDelete(edge);
     setReconnecting(false);
   }, []);
-  
+  const onNodeDoubleClick = useCallback(
+    (e: any, node: AppNode) => {
+      e.preventDefault();
+      setSelectedNode(selectedNode?.id === node.id ? null : node);
+    },
+    [selectedNode],
+  );
+
   return (
     <ReactFlow
       colorMode={colorMode}
@@ -75,6 +114,7 @@ export const DashboardView = () => {
       }}
       onClick={() => {
         setContextMenu(null);
+        setSelectedNode(null);
       }}
       defaultEdgeOptions={defaultEdgeOptions}
       onNodeMouseEnter={(__, node) => {
@@ -97,13 +137,18 @@ export const DashboardView = () => {
       onDragOver={(e) => {
         e.preventDefault();
         const position = screenToFlowPosition({ x: e.clientX, y: e.clientY });
-        const intersectingNodes = getIntersectingNodes({ ...position, width: 5, height: 5 });
+        const intersectingNodes = getIntersectingNodes({
+          ...position,
+          width: 5,
+          height: 5,
+        });
         setDragIntersectingNodes(intersectingNodes as AppNode[]);
       }}
       onDrop={(e) => {
         e.preventDefault();
         setShowAddNode(true);
       }}
+      onNodeDoubleClick={onNodeDoubleClick}
     >
       <ContextMenuComponent />
       <DeleteNodeComponent />
