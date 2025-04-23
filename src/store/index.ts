@@ -71,9 +71,8 @@ export const useStore = create<AppState>((set, get) => ({
     });
     const nodesConnectedToFilteredNodes = get().nodes.filter((node) => {
       if (
-        get().showConnectedNodesOnly &&
-        ((node.type === "client" && get().showClients) ||
-          (node.type === "wifi" && get().showWifi))
+        (node.type === "client" && get().showClients) ||
+        (node.type === "wifi" && get().showWifi)
       ) {
         return get().edges.find(
           (edge) =>
