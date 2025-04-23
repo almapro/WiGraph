@@ -1,44 +1,52 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { FaWifi, FaLaptop, FaEdit, FaTrash } from "react-icons/fa";
 import { WifiNode } from "../../nodes";
 import { useDashboardContext } from "../../context";
 
 export const WifiContextMenu: FC<{ node: WifiNode }> = ({ node }) => {
-  const { setShowConvertingToWifi, setShowAddingClientsToWifi, setShowEditingNode, setShowDeleteNode, setActiveNode } = useDashboardContext();
-  setActiveNode(node);
+  const {
+    setShowConvertingToWifi,
+    setShowAddingClientsToWifi,
+    setShowEditingNode,
+    setShowDeleteNode,
+    setActiveNode,
+  } = useDashboardContext();
+  useEffect(() => {
+    setActiveNode(node);
+  }, [node]);
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-48">
+    <div className="w-48 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
       <div className="py-1">
         {node.data.probe && (
-          <button 
-            className="w-full px-4 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          <button
+            className="flex w-full items-center gap-2 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
             onClick={() => setShowConvertingToWifi(true)}
           >
-            <FaWifi className="w-4 h-4" />
+            <FaWifi className="h-4 w-4" />
             Convert to WiFi
           </button>
         )}
         {(node.data.hotspot || !node.data.probe) && (
-          <button 
-            className="w-full px-4 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          <button
+            className="flex w-full items-center gap-2 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
             onClick={() => setShowAddingClientsToWifi(true)}
           >
-            <FaLaptop className="w-4 h-4" />
+            <FaLaptop className="h-4 w-4" />
             Add Clients
           </button>
         )}
-        <button 
-          className="w-full px-4 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+        <button
+          className="flex w-full items-center gap-2 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
           onClick={() => setShowEditingNode(true)}
         >
-          <FaEdit className="w-4 h-4" />
+          <FaEdit className="h-4 w-4" />
           Edit Node
         </button>
-        <button 
-          className="w-full px-4 py-2 text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+        <button
+          className="flex w-full items-center gap-2 px-4 py-2 text-left text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
           onClick={() => setShowDeleteNode(true)}
         >
-          <FaTrash className="w-4 h-4" />
+          <FaTrash className="h-4 w-4" />
           Delete Node
         </button>
       </div>
