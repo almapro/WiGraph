@@ -234,12 +234,6 @@ export const importFromFile = async (
           const isPrinter = /(hewlett packard|canon|epson|brother|xerox)/i.test(
             apManufacturer.toLowerCase(),
           );
-          console.log(
-            ap["kismet.device.base.name"],
-            mac,
-            isPrinter,
-            apManufacturer,
-          );
           if (isPrinter) isHotspot = false;
           queries.push({
             query: `

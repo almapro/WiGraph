@@ -70,13 +70,20 @@ export const useStore = create<AppState>((set, get) => ({
       return filtered;
     });
     const nodesConnectedToFilteredNodes = get().nodes.filter((node) => {
-      return get().edges.find(
-        (edge) =>
-          (edge.source === node.id &&
-            filtered.find((n) => n.id === edge.target)) ||
-          (edge.target === node.id &&
-            filtered.find((n) => n.id === edge.source)),
-      );
+      if (
+        get().showConnectedNodesOnly &&
+        ((node.type === "client" && get().showClients) ||
+          (node.type === "wifi" && get().showWifi))
+      ) {
+        return get().edges.find(
+          (edge) =>
+            (edge.source === node.id &&
+              filtered.find((n) => n.id === edge.target)) ||
+            (edge.target === node.id &&
+              filtered.find((n) => n.id === edge.source)),
+        );
+      }
+      return false;
     });
     const filteredNodes = _.uniqBy(
       [...nodesConnectedToFilteredNodes, ...filtered],
