@@ -1,21 +1,35 @@
-import { Button, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "flowbite-react";
+import {
+  Button,
+  Label,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useDashboardContext } from "../context";
 import { useSnackbar } from "notistack";
 import { getNodes } from "../neo4j";
 import { useReactFlow, Node } from "@xyflow/react";
+import { useStore } from "../store";
+import { useShallow } from "zustand/react/shallow";
 
 export const AddRelationComponent = () => {
-  const { 
+  const {
     driver,
     showAddRelation,
     setShowAddRelation,
     relationToAdd,
-    setRelationToAdd
+    setRelationToAdd,
   } = useDashboardContext();
-  const { setNodes, setEdges } = useReactFlow();
-  const { enqueueSnackbar } = useSnackbar();
   const { fitView, getNode, getEdges } = useReactFlow();
+  const { setNodes, setEdges } = useStore(
+    useShallow((s) => ({
+      setNodes: s.setNodes,
+      setEdges: s.setEdges,
+    })),
+  );
+  const { enqueueSnackbar } = useSnackbar();
   const [sourceNode, setSourceNode] = useState<Node | undefined>(undefined);
   const [targetNode, setTargetNode] = useState<Node | undefined>(undefined);
 
@@ -27,11 +41,15 @@ export const AddRelationComponent = () => {
       setTargetNode(targetNode);
       const edges = getEdges();
       const existingEdge = edges.find(
-        edge => edge.source === relationToAdd.source && edge.target === relationToAdd.target
+        (edge) =>
+          edge.source === relationToAdd.source &&
+          edge.target === relationToAdd.target,
       );
-      
+
       if (existingEdge) {
-        enqueueSnackbar("A relation already exists between these nodes", { variant: "warning" });
+        enqueueSnackbar("A relation already exists between these nodes", {
+          variant: "warning",
+        });
         setShowAddRelation(false);
         setRelationToAdd(null);
         return;
@@ -48,12 +66,12 @@ export const AddRelationComponent = () => {
       const query = `
         MATCH (source) WHERE source.id = $sourceId
         MATCH (target) WHERE target.id = $targetId
-        MERGE (source)-[:${targetNode?.type === 'wifi' && sourceNode?.type === 'client' && targetNode?.data.probe ? 'KNOWS' : 'CONNECTS_TO'}]->(target)
+        MERGE (source)-[:${targetNode?.type === "wifi" && sourceNode?.type === "client" && targetNode?.data.probe ? "KNOWS" : "CONNECTS_TO"}]->(target)
       `;
 
       await session.run(query, {
         sourceId: relationToAdd.source,
-        targetId: relationToAdd.target
+        targetId: relationToAdd.target,
       });
 
       await getNodes(driver, setNodes, setEdges, fitView);
@@ -81,36 +99,41 @@ export const AddRelationComponent = () => {
             <div className="flex flex-col gap-2">
               <Label>From Node</Label>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {sourceNode?.type === 'client' ? (
-                  `${sourceNode?.data.name} (${sourceNode?.data.macAddress})`
-                ) : sourceNode?.type === 'wifi' ? (
-                  `${sourceNode?.data.essid} (${sourceNode?.data.bssid || 'unknown'})`
-                ) : sourceNode?.id}
+                {sourceNode?.type === "client"
+                  ? `${sourceNode?.data.name} (${sourceNode?.data.macAddress})`
+                  : sourceNode?.type === "wifi"
+                    ? `${sourceNode?.data.essid} (${sourceNode?.data.bssid || "unknown"})`
+                    : sourceNode?.id}
               </div>
             </div>
             <div className="flex flex-col gap-2">
               <Label>To Node</Label>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                {targetNode?.type === 'client' ? (
-                  `${targetNode?.data.name} (${targetNode?.data.macAddress})`
-                ) : targetNode?.type === 'wifi' ? (
-                  `${targetNode?.data.essid} (${targetNode?.data.bssid || 'unknown'})`
-                ) : targetNode?.id}
+                {targetNode?.type === "client"
+                  ? `${targetNode?.data.name} (${targetNode?.data.macAddress})`
+                  : targetNode?.type === "wifi"
+                    ? `${targetNode?.data.essid} (${targetNode?.data.bssid || "unknown"})`
+                    : targetNode?.id}
               </div>
             </div>
             <div className="flex flex-col gap-2">
               <Label>Relation Type</Label>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 {(() => {
-                  if ((sourceNode?.type === 'wifi' && targetNode?.type === 'client') ||
-                      (sourceNode?.type === 'client' && targetNode?.type === 'wifi')) {
-                    const wifiNode = sourceNode?.type === 'wifi' ? sourceNode : targetNode;
+                  if (
+                    (sourceNode?.type === "wifi" &&
+                      targetNode?.type === "client") ||
+                    (sourceNode?.type === "client" &&
+                      targetNode?.type === "wifi")
+                  ) {
+                    const wifiNode =
+                      sourceNode?.type === "wifi" ? sourceNode : targetNode;
                     if (wifiNode?.data.probe) {
-                      return 'KNOWS';
+                      return "KNOWS";
                     }
-                    return 'CONNECTS_TO';
+                    return "CONNECTS_TO";
                   }
-                  return 'CONNECTED_TO';
+                  return "CONNECTED_TO";
                 })()}
               </div>
             </div>

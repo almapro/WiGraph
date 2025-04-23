@@ -7,12 +7,16 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 export const getLayoutedElements = (nodes: AppNode[], edges: Edge[]) => {
   dagreGraph.setGraph({ rankdir: "BT" });
+  dagreGraph.nodes().forEach((node) => {
+    dagreGraph.removeNode(node);
+  });
+  dagreGraph.edges().forEach((edge) => {
+    dagreGraph.removeEdge(edge.v, edge.w);
+  });
   nodes.forEach((node) => {
-    dagreGraph.removeNode(node.id);
     dagreGraph.setNode(node.id, { width: 32, height: 32 });
   });
   edges.forEach((edge) => {
-    dagreGraph.removeEdge(edge.source, edge.target);
     dagreGraph.setEdge(edge.source, edge.target);
   });
   dagre.layout(dagreGraph);

@@ -1,25 +1,45 @@
-import { Modal, Button, ModalHeader, ModalBody, ModalFooter } from "flowbite-react";
-import { useDashboardContext } from '../context';
+import {
+  Modal,
+  Button,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "flowbite-react";
+import { useDashboardContext } from "../context";
 import { useReactFlow } from "@xyflow/react";
 import { deleteNode, getNodes } from "../neo4j";
 import { useSnackbar } from "notistack";
+import { useStore } from "../store";
+import { useShallow } from "zustand/react/shallow";
 
 export const DeleteNodeComponent = () => {
-  const { showDeleteNode, setShowDeleteNode, driver, activeNode, setActiveNode } = useDashboardContext();
-  const { setNodes, setEdges, fitView } = useReactFlow();
+  const {
+    showDeleteNode,
+    setShowDeleteNode,
+    driver,
+    activeNode,
+    setActiveNode,
+  } = useDashboardContext();
+  const { fitView } = useReactFlow();
+  const { setNodes, setEdges } = useStore(
+    useShallow((s) => ({
+      setNodes: s.setNodes,
+      setEdges: s.setEdges,
+    })),
+  );
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleDelete = async () => { 
+  const handleDelete = async () => {
     if (!activeNode) return;
     try {
-        await deleteNode(driver, activeNode);
-        await getNodes(driver, setNodes, setEdges, fitView);
-        enqueueSnackbar("Node deleted successfully", { variant: "success" });
-        setShowDeleteNode(false);
-        setActiveNode(null);
+      await deleteNode(driver, activeNode);
+      await getNodes(driver, setNodes, setEdges, fitView);
+      enqueueSnackbar("Node deleted successfully", { variant: "success" });
+      setShowDeleteNode(false);
+      setActiveNode(null);
     } catch (error) {
-        console.error(error);
-        enqueueSnackbar("Failed to delete node", { variant: "error" });
+      console.error(error);
+      enqueueSnackbar("Failed to delete node", { variant: "error" });
     }
   };
 
@@ -33,11 +53,14 @@ export const DeleteNodeComponent = () => {
       <ModalHeader>Delete Node</ModalHeader>
       <ModalBody>
         <div className="text-gray-700 dark:text-gray-200">
-          Are you sure you want to delete this node? This action cannot be undone.
+          Are you sure you want to delete this node? This action cannot be
+          undone.
         </div>
       </ModalBody>
       <ModalFooter>
-        <Button color="red" onClick={handleDelete}>Delete</Button>
+        <Button color="red" onClick={handleDelete}>
+          Delete
+        </Button>
         <Button color="gray" onClick={handleCancel}>
           Cancel
         </Button>

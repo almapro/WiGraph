@@ -1,15 +1,42 @@
 import type {
   Node,
-  BuiltInNode
+  BuiltInNode,
+  Edge,
+  OnEdgesChange,
+  OnNodesChange,
 } from "@xyflow/react";
-
 
 export type NewNodeGroupNode = Node<{}, "newNodeGroup">;
 export type NewWifiNode = Node<{}, "newWifiNode">;
 export type NewClientNode = Node<{}, "newClientNode">;
 export type WifiNode = Node<Wifi, "wifi">;
 export type ClientNode = Node<Client, "client">;
-export type AppNode = BuiltInNode | NewNodeGroupNode | NewWifiNode | NewClientNode | WifiNode | ClientNode;
+export type AppNode =
+  | BuiltInNode
+  | NewNodeGroupNode
+  | NewWifiNode
+  | NewClientNode
+  | WifiNode
+  | ClientNode;
+export type AppState = {
+  nodes: AppNode[];
+  edges: Edge[];
+  onNodesChange: OnNodesChange<AppNode>;
+  onEdgesChange: OnEdgesChange;
+  setNodes: (nodes: AppNode[]) => void;
+  setEdges: (edges: Edge[]) => void;
+  filteredNodes: AppNode[];
+  filteredEdges: Edge[];
+  search: string;
+  setSearch: (search: string) => void;
+  showClients: boolean;
+  showWifi: boolean;
+  showConnectedNodesOnly: boolean;
+  setShowClients: (showClients: boolean) => void;
+  setShowWifi: (showWifi: boolean) => void;
+  setShowConnectedNodesOnly: (showConnectedNodesOnly: boolean) => void;
+  filterNodes: () => void;
+};
 
 export type NodeType =
   | "WIFI"

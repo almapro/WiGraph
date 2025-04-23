@@ -13,12 +13,20 @@ import { useDashboardContext } from "../context";
 import { getNodes, importFromFile } from "../neo4j";
 import { enqueueSnackbar } from "notistack";
 import { useReactFlow } from "@xyflow/react";
+import { useStore } from "../store";
+import { useShallow } from "zustand/react/shallow";
 
 export const ImportFromComponent = () => {
   const [file, setFile] = useState<File | null>(null);
   const { driver, setShowImportFromFile, showImportFromFile } =
     useDashboardContext();
-  const { setNodes, setEdges, fitView } = useReactFlow();
+  const { fitView } = useReactFlow();
+  const { setNodes, setEdges } = useStore(
+    useShallow((s) => ({
+      setNodes: s.setNodes,
+      setEdges: s.setEdges,
+    })),
+  );
   const [source, setSource] = useState<"airodump" | "kismet">("kismet");
 
   const onClose = useCallback(() => {

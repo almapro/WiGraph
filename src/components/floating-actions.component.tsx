@@ -1,21 +1,23 @@
 import { Panel, useReactFlow } from "@xyflow/react";
-import {
-  FaDownload,
-  FaFileUpload,
-  FaMoon,
-  FaSun,
-} from "react-icons/fa";
+import { FaDownload, FaFileUpload, FaMoon, FaSun } from "react-icons/fa";
 import { FloatingButtonComponent } from "./floating-actions";
-import { useContext } from 'react';
-import { AppContext, useDashboardContext } from '../context';
+import { useContext } from "react";
+import { AppContext, useDashboardContext } from "../context";
 import { VscDebugDisconnect } from "react-icons/vsc";
 import { FaRotateRight } from "react-icons/fa6";
 import { getNodes } from "../neo4j";
+import { useStore } from "../store";
+import { useShallow } from "zustand/react/shallow";
 
 export const FloatingActionsComponent = () => {
-  const { colorMode, setColorMode, setDriver } =
-    useContext(AppContext);
-  const { fitView, setNodes, setEdges } = useReactFlow();
+  const { colorMode, setColorMode, setDriver } = useContext(AppContext);
+  const { fitView } = useReactFlow();
+  const { setNodes, setEdges } = useStore(
+    useShallow((s) => ({
+      setNodes: s.setNodes,
+      setEdges: s.setEdges,
+    })),
+  );
   const { driver, setShowImportFromFile } = useDashboardContext();
   return (
     <Panel position="top-right" className="flex flex-col gap-2">
@@ -33,10 +35,10 @@ export const FloatingActionsComponent = () => {
         tooltip="Refresh"
         onClick={async (e) => {
           const button = e.currentTarget;
-          button.classList.add('animate-spin');
+          button.classList.add("animate-spin");
           await getNodes(driver, setNodes, setEdges, fitView);
           setTimeout(() => {
-            button.classList.remove('animate-spin');
+            button.classList.remove("animate-spin");
           }, 1000);
         }}
       >

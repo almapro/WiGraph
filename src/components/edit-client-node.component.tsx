@@ -17,6 +17,8 @@ import { enqueueSnackbar } from "notistack";
 import { FaLaptop } from "react-icons/fa";
 import { FaMobileAlt, FaTabletAlt } from "react-icons/fa";
 import { FaDesktop } from "react-icons/fa";
+import { useStore } from "../store";
+import { useShallow } from "zustand/react/shallow";
 
 interface ClientFormData {
   id: string;
@@ -37,7 +39,13 @@ export const EditClientNodeComponent = () => {
     activeNode,
     setActiveNode,
   } = useDashboardContext();
-  const { setNodes, setEdges, fitView } = useReactFlow();
+  const { fitView } = useReactFlow();
+  const { setNodes, setEdges } = useStore(
+    useShallow((s) => ({
+      setNodes: s.setNodes,
+      setEdges: s.setEdges,
+    })),
+  );
   const isClient = activeNode && activeNode.type === "client";
   const [client, setClient] = useState<ClientFormData>({
     id: isClient ? activeNode.id : "",

@@ -2,7 +2,6 @@ import { Driver } from "neo4j-driver";
 import { AppNode } from "../nodes/types";
 import { Client, Wifi } from "../nodes";
 import { Edge } from "@xyflow/react";
-import { getLayoutedElements } from "../dagre";
 import { KismetWiFiDeviceList } from "../kismet";
 import { v4 } from "uuid";
 
@@ -141,12 +140,8 @@ export const getNodes = async (
         })),
       );
     });
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-      [...nodes, ...clientsNodes],
-      edges,
-    );
-    setNodes(layoutedNodes);
-    setEdges(layoutedEdges);
+    setNodes([...nodes, ...clientsNodes]);
+    setEdges(edges);
     fitView();
     await session.close();
   } catch (error) {

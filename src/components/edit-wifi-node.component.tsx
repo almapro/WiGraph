@@ -1,4 +1,14 @@
-import { Button, HelperText, Label, Modal, ModalBody, ModalFooter, ModalHeader, TextInput, Tooltip } from "flowbite-react";
+import {
+  Button,
+  HelperText,
+  Label,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  TextInput,
+  Tooltip,
+} from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useDashboardContext } from "../context";
 import { getNodes } from "../neo4j";
@@ -7,25 +17,88 @@ import { enqueueSnackbar } from "notistack";
 import { PiPrinterFill } from "react-icons/pi";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { FaWifi, FaEye, FaEyeSlash } from "react-icons/fa";
+import { useStore } from "../store";
+import { useShallow } from "zustand/react/shallow";
 
 export const EditWifiNodeComponent = () => {
-  const { driver, showEditingNode, setShowEditingNode, activeNode, setActiveNode } = useDashboardContext();
-  if (!activeNode || activeNode.type !== "wifi") return null;
-  const { setNodes, setEdges, fitView } = useReactFlow();
-  const [essid, setEssid] = useState(activeNode.data.essid || "");
-  const [bssid, setBssid] = useState(activeNode.data.bssid || "");
+  const {
+    driver,
+    showEditingNode,
+    setShowEditingNode,
+    activeNode,
+    setActiveNode,
+  } = useDashboardContext();
+  const { fitView } = useReactFlow();
+  const { setNodes, setEdges } = useStore(
+    useShallow((s) => ({
+      setNodes: s.setNodes,
+      setEdges: s.setEdges,
+    })),
+  );
+  const [essid, setEssid] = useState(
+    activeNode && activeNode.type === "wifi" ? activeNode.data.essid : "",
+  );
+  const [bssid, setBssid] = useState(
+    activeNode && activeNode.type === "wifi" ? activeNode.data.bssid : "",
+  );
   const [bssidError, setBssidError] = useState(false);
-  const [bssidPart1, setBssidPart1] = useState(activeNode.data.bssid.split(":").length > 0 ? activeNode.data.bssid.split(":")[0] : "");
-  const [bssidPart2, setBssidPart2] = useState(activeNode.data.bssid.split(":").length > 1 ? activeNode.data.bssid.split(":")[1] : "");
-  const [bssidPart3, setBssidPart3] = useState(activeNode.data.bssid.split(":").length > 2 ? activeNode.data.bssid.split(":")[2] : "");
-  const [bssidPart4, setBssidPart4] = useState(activeNode.data.bssid.split(":").length > 3 ? activeNode.data.bssid.split(":")[3] : "");
-  const [bssidPart5, setBssidPart5] = useState(activeNode.data.bssid.split(":").length > 4 ? activeNode.data.bssid.split(":")[4] : "");
-  const [bssidPart6, setBssidPart6] = useState(activeNode.data.bssid.split(":").length > 5 ? activeNode.data.bssid.split(":")[5] : "");
-  const [password, setPassword] = useState(activeNode.data.password || "");
-  const [pin, setPin] = useState(activeNode.data.pin || "");
-  const [probe, setProbe] = useState(activeNode.data.probe || false);
-  const [hotspot, setHotspot] = useState(activeNode.data.hotspot || false);
-  const [printer, setPrinter] = useState(activeNode.data.printer || false);
+  const [bssidPart1, setBssidPart1] = useState(
+    activeNode && activeNode.type === "wifi"
+      ? activeNode.data.bssid.split(":").length > 0
+        ? activeNode.data.bssid.split(":")[0]
+        : ""
+      : "",
+  );
+  const [bssidPart2, setBssidPart2] = useState(
+    activeNode && activeNode.type === "wifi"
+      ? activeNode.data.bssid.split(":").length > 1
+        ? activeNode.data.bssid.split(":")[1]
+        : ""
+      : "",
+  );
+  const [bssidPart3, setBssidPart3] = useState(
+    activeNode && activeNode.type === "wifi"
+      ? activeNode.data.bssid.split(":").length > 2
+        ? activeNode.data.bssid.split(":")[2]
+        : ""
+      : "",
+  );
+  const [bssidPart4, setBssidPart4] = useState(
+    activeNode && activeNode.type === "wifi"
+      ? activeNode.data.bssid.split(":").length > 3
+        ? activeNode.data.bssid.split(":")[3]
+        : ""
+      : "",
+  );
+  const [bssidPart5, setBssidPart5] = useState(
+    activeNode && activeNode.type === "wifi"
+      ? activeNode.data.bssid.split(":").length > 4
+        ? activeNode.data.bssid.split(":")[4]
+        : ""
+      : "",
+  );
+  const [bssidPart6, setBssidPart6] = useState(
+    activeNode && activeNode.type === "wifi"
+      ? activeNode.data.bssid.split(":").length > 5
+        ? activeNode.data.bssid.split(":")[5]
+        : ""
+      : "",
+  );
+  const [password, setPassword] = useState(
+    activeNode && activeNode.type === "wifi" ? activeNode.data.password : "",
+  );
+  const [pin, setPin] = useState(
+    activeNode && activeNode.type === "wifi" ? activeNode.data.pin : "",
+  );
+  const [probe, setProbe] = useState(
+    activeNode && activeNode.type === "wifi" ? activeNode.data.probe : false,
+  );
+  const [hotspot, setHotspot] = useState(
+    activeNode && activeNode.type === "wifi" ? activeNode.data.hotspot : false,
+  );
+  const [printer, setPrinter] = useState(
+    activeNode && activeNode.type === "wifi" ? activeNode.data.printer : false,
+  );
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -40,22 +113,27 @@ export const EditWifiNodeComponent = () => {
     setBssid(value);
   }, [bssidPart1, bssidPart2, bssidPart3, bssidPart4, bssidPart5, bssidPart6]);
 
+  if (!activeNode || activeNode.type !== "wifi") return null;
+
   const handleSubmit = async () => {
     try {
       const session = driver.session();
-      await session.run(`
+      await session.run(
+        `
         MATCH (w:Wifi {id: $nodeId})
         SET w.essid = $essid, w.bssid = $bssid, w.password = $password, w.pin = $pin, w.probe = $probe, w.hotspot = $hotspot, w.printer = $printer
-      `, { 
-        nodeId: activeNode.id, 
-        essid,
-        bssid: probe ? "" : bssid,
-        password,
-        pin,
-        probe,
-        hotspot,
-        printer
-      });
+      `,
+        {
+          nodeId: activeNode.id,
+          essid,
+          bssid: probe ? "" : bssid,
+          password,
+          pin,
+          probe,
+          hotspot,
+          printer,
+        },
+      );
       await session.close();
       enqueueSnackbar("WiFi node updated successfully", { variant: "success" });
       setShowEditingNode(false);
@@ -192,38 +270,47 @@ export const EditWifiNodeComponent = () => {
                   const val = e.target.value;
                   setBssidPart1(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-2');
+                    const nextInput = document.getElementById("bssid-2");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
-                id="bssid-2" 
+                id="bssid-2"
                 placeholder="XX"
                 value={bssidPart2}
                 maxLength={2}
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-1') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-1",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   const val = e.target.value;
                   setBssidPart2(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-3');
+                    const nextInput = document.getElementById("bssid-3");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
@@ -234,22 +321,29 @@ export const EditWifiNodeComponent = () => {
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-2') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-2",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   const val = e.target.value;
                   setBssidPart3(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-4');
+                    const nextInput = document.getElementById("bssid-4");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
@@ -260,22 +354,29 @@ export const EditWifiNodeComponent = () => {
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-3') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-3",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   const val = e.target.value;
                   setBssidPart4(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-5');
+                    const nextInput = document.getElementById("bssid-5");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
@@ -286,22 +387,29 @@ export const EditWifiNodeComponent = () => {
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-4') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-4",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   const val = e.target.value;
                   setBssidPart5(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-6');
+                    const nextInput = document.getElementById("bssid-6");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
@@ -312,20 +420,23 @@ export const EditWifiNodeComponent = () => {
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-5') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-5",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   setBssidPart6(e.target.value);
                 }}
               />
             </div>
-            <HelperText
-              color={bssidError ? "failure" : "gray"}
-            >
+            <HelperText color={bssidError ? "failure" : "gray"}>
               {bssidError ? "BSSID must be formatted properly" : ""}
             </HelperText>
           </div>
@@ -373,8 +484,12 @@ export const EditWifiNodeComponent = () => {
         </div>
       </ModalBody>
       <ModalFooter>
-        <Button onClick={handleSubmit} disabled={!essid || bssidError}>Save</Button>
-        <Button color="gray" onClick={handleCancel}>Cancel</Button>
+        <Button onClick={handleSubmit} disabled={!essid || bssidError}>
+          Save
+        </Button>
+        <Button color="gray" onClick={handleCancel}>
+          Cancel
+        </Button>
       </ModalFooter>
     </Modal>
   );

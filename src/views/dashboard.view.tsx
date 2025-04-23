@@ -3,17 +3,15 @@ import {
   Background,
   Controls,
   MiniMap,
-  useNodesState,
-  useEdgesState,
-  type OnConnect,
   BackgroundVariant,
   useReactFlow,
   Edge,
   MarkerType,
+  Connection,
 } from "@xyflow/react";
 import { useCallback, useEffect } from "react";
-import { initialNodes, nodeTypes, AppNode } from "../nodes";
-import { initialEdges, edgeTypes } from "../edges";
+import { nodeTypes, AppNode } from "../nodes";
+import { edgeTypes } from "../edges";
 import {
   ContextMenuComponent,
   DeleteNodeComponent,
@@ -28,19 +26,35 @@ import {
   EditWifiNodeComponent,
   EditClientNodeComponent,
   ImportFromComponent,
+  FiltersPanel,
 } from "../components";
 import { useTitle } from "react-use";
 import { useAppContext, useDashboardContext } from "../context";
 import { getNodes } from "../neo4j";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "../store";
 
 export const DashboardView = () => {
   useTitle("WiGraph - Dashboard");
   const { colorMode } = useAppContext();
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const {
-    setRelationToAdd,
-    setShowAddRelation,
+    filteredNodes,
+    filteredEdges,
+    setNodes,
+    setEdges,
+    onNodesChange,
+    onEdgesChange,
+  } = useStore(
+    useShallow((s) => ({
+      filteredNodes: s.filteredNodes as AppNode[],
+      filteredEdges: s.filteredEdges as Edge[],
+      setNodes: s.setNodes,
+      setEdges: s.setEdges,
+      onNodesChange: s.onNodesChange,
+      onEdgesChange: s.onEdgesChange,
+    })),
+  );
+  const {
     setRelationToDelete,
     setShowDeleteRelation,
     setHoveringNode,
@@ -52,11 +66,22 @@ export const DashboardView = () => {
     setDragging,
     selectedNode,
     setSelectedNode,
+    setRelationToAdd,
+    setShowAddRelation,
   } = useDashboardContext();
-  const onConnect: OnConnect = useCallback(
-    (connection) => {
-      const source = nodes.find((node) => node.id === connection.source);
-      const target = nodes.find((node) => node.id === connection.target);
+  const { fitView, screenToFlowPosition, getIntersectingNodes } =
+    useReactFlow();
+  useEffect(() => {
+    getNodes(driver, setNodes, setEdges, fitView);
+  }, [setNodes, driver, fitView]);
+  const onConnect = useCallback(
+    (connection: Connection) => {
+      const source = filteredNodes.find(
+        (node) => node.id === connection.source,
+      );
+      const target = filteredNodes.find(
+        (node) => node.id === connection.target,
+      );
       if (
         (source?.type === "client" && target?.type === "wifi") ||
         (source?.type === "wifi" && target?.type === "client")
@@ -65,13 +90,8 @@ export const DashboardView = () => {
         setShowAddRelation(true);
       }
     },
-    [nodes],
+    [filteredNodes],
   );
-  const { fitView, screenToFlowPosition, getIntersectingNodes } =
-    useReactFlow();
-  useEffect(() => {
-    getNodes(driver, setNodes, setEdges, fitView);
-  }, [setNodes, driver, fitView]);
 
   const defaultEdgeOptions = {
     type: "floating",
@@ -96,15 +116,15 @@ export const DashboardView = () => {
   return (
     <ReactFlow
       colorMode={colorMode}
-      nodes={nodes}
+      nodes={filteredNodes}
       nodeTypes={nodeTypes}
-      onNodesChange={onNodesChange}
-      edges={edges}
+      onNodesChange={onNodesChange || undefined}
+      edges={filteredEdges}
       edgeTypes={edgeTypes}
-      onEdgesChange={onEdgesChange}
+      onEdgesChange={onEdgesChange || undefined}
       onConnect={onConnect}
       fitView
-      onNodeContextMenu={(event, node) => {
+      onNodeContextMenu={(event, node: AppNode) => {
         event.preventDefault();
         setContextMenu({
           x: event.clientX,
@@ -117,7 +137,7 @@ export const DashboardView = () => {
         setSelectedNode(null);
       }}
       defaultEdgeOptions={defaultEdgeOptions}
-      onNodeMouseEnter={(__, node) => {
+      onNodeMouseEnter={(__, node: AppNode) => {
         setHoveringNode(node);
       }}
       onNodeMouseLeave={() => {
@@ -162,6 +182,7 @@ export const DashboardView = () => {
       <ConvertToWifiComponent />
       <AddNodePanel />
       <ImportFromComponent />
+      <FiltersPanel />
       <Background variant={BackgroundVariant.Dots} />
       <MiniMap />
       <Controls />

@@ -1,20 +1,47 @@
-import { Button, HelperText, Label, TextInput, Tooltip, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb, BreadcrumbItem } from "flowbite-react";
+import {
+  Button,
+  HelperText,
+  Label,
+  TextInput,
+  Tooltip,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Breadcrumb,
+  BreadcrumbItem,
+} from "flowbite-react";
 import { FC, useEffect, useState } from "react";
 import _ from "lodash";
 import { v4 } from "uuid";
 import { FaEye, FaEyeSlash, FaWifi } from "react-icons/fa";
 import { MdPermScanWifi, MdWifiTethering } from "react-icons/md";
 import { useSnackbar } from "notistack";
-import { useDashboardContext } from '../context';
+import { useDashboardContext } from "../context";
 import { useReactFlow } from "@xyflow/react";
 import { getNodes } from "../neo4j";
 import { PiPrinterFill } from "react-icons/pi";
 import { ClientNode } from "../nodes";
+import { useStore } from "../store";
+import { useShallow } from "zustand/react/shallow";
 
 export const AddWifiNodeComponent: FC = () => {
   const { enqueueSnackbar } = useSnackbar();
-  const { fitView, setNodes, setEdges } = useReactFlow();
-  const { driver, showAddNode, setShowAddNode, showAddType, setDragIntersectingNodes, dragIntersectingNodes } = useDashboardContext();
+  const { fitView } = useReactFlow();
+  const { setNodes, setEdges } = useStore(
+    useShallow((s) => ({
+      setNodes: s.setNodes,
+      setEdges: s.setEdges,
+    })),
+  );
+  const {
+    driver,
+    showAddNode,
+    setShowAddNode,
+    showAddType,
+    setDragIntersectingNodes,
+    dragIntersectingNodes,
+  } = useDashboardContext();
   const [id, setId] = useState(v4());
   const [essid, setEssid] = useState("");
   const [bssid, setBssid] = useState("");
@@ -31,7 +58,7 @@ export const AddWifiNodeComponent: FC = () => {
   const [bssidPart4, setBssidPart4] = useState("");
   const [bssidPart5, setBssidPart5] = useState("");
   const [bssidPart6, setBssidPart6] = useState("");
-  
+
   useEffect(() => {
     let value = `${bssidPart1}:${bssidPart2}:${bssidPart3}:${bssidPart4}:${bssidPart5}:${bssidPart6}`;
     if (value.replaceAll(":", "").length === 0) {
@@ -79,7 +106,9 @@ export const AddWifiNodeComponent: FC = () => {
           printer,
           password,
           pin,
-          relations: dragIntersectingNodes.filter(node => node.type === "client").map(node => ({ id: (node as ClientNode).id }))
+          relations: dragIntersectingNodes
+            .filter((node) => node.type === "client")
+            .map((node) => ({ id: (node as ClientNode).id })),
         },
       )
       .then(async () => {
@@ -120,21 +149,30 @@ export const AddWifiNodeComponent: FC = () => {
       <ModalHeader>Add WiFi Node</ModalHeader>
       <form onSubmit={handleOnSubmit}>
         <ModalBody className="flex flex-col gap-4">
-          {dragIntersectingNodes.filter(node => node.type === "client").length > 0 && (
-          <div className="flex flex-col gap-2">
-            <div className="block">
-              <Label>Relations to add:</Label>
+          {dragIntersectingNodes.filter((node) => node.type === "client")
+            .length > 0 && (
+            <div className="flex flex-col gap-2">
+              <div className="block">
+                <Label>Relations to add:</Label>
+              </div>
+              {dragIntersectingNodes
+                .filter((node) => node.type === "client")
+                .map((node) => (
+                  <Breadcrumb
+                    key={node.id}
+                    className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2 text-sm font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                  >
+                    <BreadcrumbItem>
+                      {(node as ClientNode).data.name} -{" "}
+                      {(node as ClientNode).data.macAddress}
+                    </BreadcrumbItem>
+                    <BreadcrumbItem>
+                      {probe ? "KNOWS" : "CONNECTS_TO"}
+                    </BreadcrumbItem>
+                    <BreadcrumbItem>This node</BreadcrumbItem>
+                  </Breadcrumb>
+                ))}
             </div>
-            {dragIntersectingNodes
-              .filter(node => node.type === "client")
-              .map((node) => (
-                <Breadcrumb key={node.id} className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 bg-gray-50 text-sm font-medium text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                  <BreadcrumbItem>{(node as ClientNode).data.name} - {(node as ClientNode).data.macAddress}</BreadcrumbItem>
-                  <BreadcrumbItem>{probe ? "KNOWS" : "CONNECTS_TO"}</BreadcrumbItem>
-                  <BreadcrumbItem>This node</BreadcrumbItem>
-                </Breadcrumb>
-              ))}
-          </div>
           )}
           <div>
             <div className="mb-2 block">
@@ -225,38 +263,47 @@ export const AddWifiNodeComponent: FC = () => {
                   const val = e.target.value;
                   setBssidPart1(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-2');
+                    const nextInput = document.getElementById("bssid-2");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
-                id="bssid-2" 
+                id="bssid-2"
                 placeholder="XX"
                 value={bssidPart2}
                 maxLength={2}
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-1') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-1",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   const val = e.target.value;
                   setBssidPart2(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-3');
+                    const nextInput = document.getElementById("bssid-3");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
@@ -267,22 +314,29 @@ export const AddWifiNodeComponent: FC = () => {
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-2') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-2",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   const val = e.target.value;
                   setBssidPart3(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-4');
+                    const nextInput = document.getElementById("bssid-4");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
@@ -293,22 +347,29 @@ export const AddWifiNodeComponent: FC = () => {
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-3') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-3",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   const val = e.target.value;
                   setBssidPart4(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-5');
+                    const nextInput = document.getElementById("bssid-5");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
@@ -319,22 +380,29 @@ export const AddWifiNodeComponent: FC = () => {
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-4') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-4",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   const val = e.target.value;
                   setBssidPart5(val);
                   if (/^[0-9A-Fa-f]{2}$/.test(val)) {
-                    const nextInput = document.getElementById('bssid-6');
+                    const nextInput = document.getElementById("bssid-6");
                     nextInput?.focus();
                   }
                 }}
               />
-              <span className="flex items-center text-gray-500 dark:text-gray-400 text-lg">:</span>
+              <span className="flex items-center text-lg text-gray-500 dark:text-gray-400">
+                :
+              </span>
               <TextInput
                 required={!probe}
                 disabled={probe}
@@ -345,20 +413,23 @@ export const AddWifiNodeComponent: FC = () => {
                 className="w-12"
                 color={bssidError ? "failure" : "gray"}
                 onChange={(e) => {
-                  if (e.target.value === '' && e.target.selectionStart === 0) {
-                    const prevInput = document.getElementById('bssid-5') as HTMLInputElement | null;
+                  if (e.target.value === "" && e.target.selectionStart === 0) {
+                    const prevInput = document.getElementById(
+                      "bssid-5",
+                    ) as HTMLInputElement | null;
                     if (prevInput) {
                       prevInput.focus();
-                      prevInput.setSelectionRange(prevInput.value.length, prevInput.value.length);
+                      prevInput.setSelectionRange(
+                        prevInput.value.length,
+                        prevInput.value.length,
+                      );
                     }
                   }
                   setBssidPart6(e.target.value);
                 }}
               />
             </div>
-            <HelperText
-              color={bssidError ? "failure" : "gray"}
-            >
+            <HelperText color={bssidError ? "failure" : "gray"}>
               {bssidError ? "BSSID must be formatted properly" : ""}
             </HelperText>
           </div>
