@@ -132,9 +132,14 @@ export const DashboardView = () => {
           node: node,
         });
       }}
-      onClick={() => {
+      onClick={(e) => {
         setContextMenu(null);
-        setSelectedNode(null);
+        if (
+          e.target instanceof HTMLElement &&
+          e.target.classList.contains("react-flow__pane")
+        ) {
+          setSelectedNode(null);
+        }
       }}
       defaultEdgeOptions={defaultEdgeOptions}
       onNodeMouseEnter={(__, node: AppNode) => {
