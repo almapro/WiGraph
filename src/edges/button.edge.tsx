@@ -38,7 +38,7 @@ export const ButtonEdge = ({
         style={style}
         data-active-selection={`${selectedNode !== null}`}
         data-connected-to-selected={`${target === selectedNode?.id || source === selectedNode?.id}`}
-        className="data-[active-selection=true]:data-[connected-to-selected=false]:!opacity-50 data-[active-selection=true]:data-[connected-to-selected=true]:!stroke-blue-500"
+        className="data-[active-selection=true]:data-[connected-to-selected=false]:!opacity-0 data-[active-selection=true]:data-[connected-to-selected=true]:!stroke-blue-500"
       />
       <EdgeLabelRenderer>
         <div
