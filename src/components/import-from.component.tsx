@@ -17,7 +17,7 @@ import { useStore } from "../store";
 import { useShallow } from "zustand/react/shallow";
 
 export const ImportFromComponent = () => {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const { driver, setShowImportFromFile, showImportFromFile } =
     useDashboardContext();
   const { fitView } = useReactFlow();
@@ -31,14 +31,14 @@ export const ImportFromComponent = () => {
 
   const onClose = useCallback(() => {
     setShowImportFromFile(false);
-    setFile(null);
+    setFiles([]);
     setSource("kismet");
   }, []);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
-        setFile(e.target.files[0]);
+        setFiles(Array.from(e.target.files));
       }
     },
     [],
@@ -47,9 +47,11 @@ export const ImportFromComponent = () => {
   const handleImport = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      if (!file) return;
+      if (files.length === 0) return;
       try {
-        await importFromFile(driver, file, source);
+        await Promise.all(
+          files.map((file) => importFromFile(driver, file, source)),
+        );
         enqueueSnackbar("Import successful", {
           variant: "success",
           autoHideDuration: 3000,
@@ -63,12 +65,12 @@ export const ImportFromComponent = () => {
         });
       }
     },
-    [driver, file, onClose],
+    [driver, files, onClose],
   );
 
   const handleClose = () => {
     setShowImportFromFile(false);
-    setFile(null);
+    setFiles([]);
     setSource("kismet");
   };
 
@@ -100,12 +102,19 @@ export const ImportFromComponent = () => {
               id="file"
               type="file"
               onChange={handleFileChange}
-              accept=".json"
+              multiple
+              accept={
+                source === "kismet"
+                  ? ".json"
+                  : source === "airodump"
+                    ? ".netxml"
+                    : ""
+              }
             />
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button color="blue" type="submit" disabled={!file}>
+          <Button color="blue" type="submit" disabled={files.length === 0}>
             Import
           </Button>
           <Button color="gray" onClick={handleClose}>
