@@ -1,5 +1,5 @@
 import { Panel, useReactFlow } from "@xyflow/react";
-import { FaDownload, FaFileUpload, FaMoon, FaSun } from "react-icons/fa";
+import { FaFileUpload, FaMoon, FaSun } from "react-icons/fa";
 import { FloatingButtonComponent } from "./floating-actions";
 import { useContext } from "react";
 import { AppContext, useDashboardContext } from "../context";
@@ -51,15 +51,6 @@ export const FloatingActionsComponent = () => {
         }}
       >
         <FaFileUpload className="m-auto" />
-      </FloatingButtonComponent>
-      <FloatingButtonComponent
-        tooltip="Export"
-        onClick={() => {
-          driver?.close();
-          setDriver(null);
-        }}
-      >
-        <FaDownload className="m-auto" />
       </FloatingButtonComponent>
       <FloatingButtonComponent
         tooltip="Disconnect"
