@@ -49,9 +49,7 @@ export const ImportFromComponent = () => {
       e.preventDefault();
       if (files.length === 0) return;
       try {
-        await Promise.all(
-          files.map((file) => importFromFile(driver, file, source)),
-        );
+        await importFromFile(driver, files, source);
         enqueueSnackbar("Import successful", {
           variant: "success",
           autoHideDuration: 3000,
@@ -59,6 +57,7 @@ export const ImportFromComponent = () => {
         onClose();
         await getNodes(driver, setNodes, setEdges, fitView);
       } catch (error) {
+        console.error(error);
         enqueueSnackbar("Import failed", {
           variant: "error",
           autoHideDuration: 5000,

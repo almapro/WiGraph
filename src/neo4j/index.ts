@@ -204,42 +204,45 @@ export const deleteNode = async (driver: Driver, node: AppNode) => {
 
 export const importFromFile = async (
   driver: Driver,
-  file: File,
+  files: File[],
   type: "kismet" | "airodump",
 ) => {
   const oui = await fetch("/oui.json");
   const ouiData: { [key: string]: string } = await oui.json();
-  const fileContent = await file.text();
   const session = driver.session();
   const queries: { query: string; params: { [key: string]: any } }[] = [];
-  switch (type) {
-    case "kismet":
-      try {
-        const kismetData: KismetWiFiDeviceList = JSON.parse(fileContent);
-        const aps = kismetData.filter(
-          (device) => device["kismet.device.base.type"] === "Wi-Fi AP",
-        );
-        const apsWithClients = aps.filter(
-          (ap) => ap["dot11.device"]["dot11.device.associated_client_map"],
-        );
-        const clients = kismetData.filter(
-          (device) => device["kismet.device.base.type"] === "Wi-Fi Client",
-        );
-        aps.forEach((ap) => {
-          const mac = ap["kismet.device.base.macaddr"]
-            .slice(0, 8)
-            .replaceAll(":", "");
-          const apManufacturer = ouiData[mac] || "";
-          let isHotspot =
-            /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
-              apManufacturer.toLowerCase(),
+  await Promise.all(
+    files.map(async (file) => {
+      const fileContent = await file.text();
+      switch (type) {
+        case "kismet":
+          try {
+            const kismetData: KismetWiFiDeviceList = JSON.parse(fileContent);
+            const aps = kismetData.filter(
+              (device) => device["kismet.device.base.type"] === "Wi-Fi AP",
             );
-          const isPrinter = /(hewlett packard|canon|epson|brother|xerox)/i.test(
-            apManufacturer.toLowerCase(),
-          );
-          if (isPrinter) isHotspot = false;
-          queries.push({
-            query: `
+            const apsWithClients = aps.filter(
+              (ap) => ap["dot11.device"]["dot11.device.associated_client_map"],
+            );
+            const clients = kismetData.filter(
+              (device) => device["kismet.device.base.type"] === "Wi-Fi Client",
+            );
+            aps.forEach((ap) => {
+              const mac = ap["kismet.device.base.macaddr"]
+                .slice(0, 8)
+                .replaceAll(":", "");
+              const apManufacturer = ouiData[mac] || "";
+              let isHotspot =
+                /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
+                  apManufacturer.toLowerCase(),
+                );
+              const isPrinter =
+                /(hewlett packard|canon|epson|brother|xerox)/i.test(
+                  apManufacturer.toLowerCase(),
+                );
+              if (isPrinter) isHotspot = false;
+              queries.push({
+                query: `
             MATCH (existing:Wifi {bssid: $bssid}) 
             WITH count(existing) as nodeExists
             WHERE nodeExists = 0
@@ -250,33 +253,33 @@ export const importFromFile = async (
               probe: $probe,
               hotspot: $hotspot,
               printer: $printer,
-              password: CASE WHEN $password = '' THEN null ELSE $password END,
-              pin: CASE WHEN $pin = '' THEN null ELSE $pin END
+              password: $password,
+              pin: $pin
             })
           `,
-            params: {
-              id: v4(),
-              essid: ap["kismet.device.base.name"].trim(),
-              bssid: ap["kismet.device.base.macaddr"].trim(),
-              probe: false,
-              hotspot: isHotspot,
-              printer: isPrinter,
-              password: "",
-              pin: "",
-            },
-          });
-        });
-        clients.forEach((client) => {
-          const mac = client["kismet.device.base.macaddr"]
-            .slice(0, 8)
-            .replaceAll(":", "");
-          const clientManufacturer = ouiData[mac] || "";
-          const isMobile =
-            /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
-              clientManufacturer.toLowerCase(),
-            );
-          queries.push({
-            query: `
+                params: {
+                  id: v4(),
+                  essid: ap["kismet.device.base.name"].trim(),
+                  bssid: ap["kismet.device.base.macaddr"].trim(),
+                  probe: false,
+                  hotspot: isHotspot,
+                  printer: isPrinter,
+                  password: "",
+                  pin: "",
+                },
+              });
+            });
+            clients.forEach((client) => {
+              const mac = client["kismet.device.base.macaddr"]
+                .slice(0, 8)
+                .replaceAll(":", "");
+              const clientManufacturer = ouiData[mac] || "";
+              const isMobile =
+                /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
+                  clientManufacturer.toLowerCase(),
+                );
+              queries.push({
+                query: `
             MATCH (existing:Client {macAddress: $macAddress}) 
             WITH count(existing) as nodeExists
             WHERE nodeExists = 0
@@ -291,24 +294,24 @@ export const importFromFile = async (
               mobile: $mobile
             })
             `,
-            params: {
-              id: v4(),
-              name: client["kismet.device.base.name"].trim() || "Unknown",
-              macAddress: client["kismet.device.base.macaddr"].trim(),
-              ipAddress: "",
-              desktop: !isMobile,
-              laptop: false,
-              tablet: false,
-              mobile: isMobile,
-            },
-          });
-          const probedSsids =
-            client["dot11.device"]["dot11.device.probed_ssid_map"];
-          if (probedSsids) {
-            probedSsids.forEach((ssid) => {
-              if (ssid["dot11.probedssid.ssid"] !== "") {
-                queries.push({
-                  query: `
+                params: {
+                  id: v4(),
+                  name: client["kismet.device.base.name"].trim() || "Unknown",
+                  macAddress: client["kismet.device.base.macaddr"].trim(),
+                  ipAddress: "",
+                  desktop: !isMobile,
+                  laptop: false,
+                  tablet: false,
+                  mobile: isMobile,
+                },
+              });
+              const probedSsids =
+                client["dot11.device"]["dot11.device.probed_ssid_map"];
+              if (probedSsids) {
+                probedSsids.forEach((ssid) => {
+                  if (ssid["dot11.probedssid.ssid"] !== "") {
+                    queries.push({
+                      query: `
                 MATCH (existing:Wifi {essid: $essid})
                 WITH count(existing) as nodeExists
                 WHERE nodeExists = 0
@@ -319,17 +322,17 @@ export const importFromFile = async (
                   probe: true,
                   hotspot: false,
                   printer: false,
-                  password: null,
-                  pin: null
+                  password: '',
+                  pin: ''
                 })
               `,
-                  params: {
-                    id: v4(),
-                    essid: ssid["dot11.probedssid.ssid"],
-                  },
-                });
-                queries.push({
-                  query: `
+                      params: {
+                        id: v4(),
+                        essid: ssid["dot11.probedssid.ssid"],
+                      },
+                    });
+                    queries.push({
+                      query: `
                 MATCH (w:Wifi {essid: $essid})
                 MATCH (c:Client {macAddress: $macAddress})
                 WITH c, w
@@ -341,19 +344,19 @@ export const importFromFile = async (
                 WHERE w.probe = false OR w.probe IS NULL
                 CREATE (c)-[:CONNECTS_TO]->(w)
               `,
-                  params: {
-                    id: v4(),
-                    essid: ssid["dot11.probedssid.ssid"],
-                    macAddress: client["kismet.device.base.macaddr"].trim(),
-                  },
+                      params: {
+                        id: v4(),
+                        essid: ssid["dot11.probedssid.ssid"],
+                        macAddress: client["kismet.device.base.macaddr"].trim(),
+                      },
+                    });
+                  }
                 });
               }
             });
-          }
-        });
-        apsWithClients.forEach((ap) => {
-          queries.push({
-            query: `
+            apsWithClients.forEach((ap) => {
+              queries.push({
+                query: `
               MATCH (w:Wifi {bssid: $bssid})
               UNWIND $clientsMac as clientMac
               MATCH (c:Client {macAddress: clientMac})
@@ -366,149 +369,145 @@ export const importFromFile = async (
               OPTIONAL MATCH (c)-[k:KNOWS]->(w)
               DELETE k
             `,
-            params: {
-              bssid: ap["kismet.device.base.macaddr"].trim(),
-              clientsMac: Object.keys(
-                ap["dot11.device"]["dot11.device.associated_client_map"] || {},
-              ),
-            },
-          });
-        });
-        const transaction = session.beginTransaction();
-        await Promise.all(
-          queries.map((query) => transaction.run(query.query, query.params)),
-        );
-        await transaction.commit();
-        await session.close();
-      } catch (error) {
-        console.error("Error parsing Kismet data:", error);
-      }
-      break;
-    case "airodump":
-      try {
-        const airodumpData = await file.text();
-        const parser = new XMLParser({
-          numberParseOptions: {
-            leadingZeros: false,
-            hex: false,
-          },
-        });
-        const airodumpDataObject: AirodumpData = parser.parse(airodumpData);
-        let aps = Array.isArray(
-          airodumpDataObject["detection-run"]["wireless-network"],
-        )
-          ? airodumpDataObject["detection-run"]["wireless-network"]
-              .map((n) => ({
-                SSID: `${n.SSID?.essid || ""}`,
-                BSSID: `${n.BSSID || ""}`,
-              }))
-              .filter((n) => n.SSID !== "")
-          : airodumpDataObject["detection-run"]["wireless-network"] instanceof
-              Object
-            ? [
-                {
-                  SSID: `${
-                    airodumpDataObject["detection-run"]["wireless-network"].SSID
-                      ?.essid || ""
-                  }`,
-                  BSSID: `${
-                    airodumpDataObject["detection-run"]["wireless-network"]
-                      .BSSID || ""
-                  }`,
+                params: {
+                  bssid: ap["kismet.device.base.macaddr"].trim(),
+                  clientsMac: Object.keys(
+                    ap["dot11.device"]["dot11.device.associated_client_map"] ||
+                      {},
+                  ),
                 },
-              ]
-            : [];
-        aps = _.uniqBy(
-          aps.map((ap) => ({
-            SSID: ap.SSID.split(" ")
-              .map((p) => htmlEntityHexToString(p))
-              .join(" "),
-            BSSID: ap.BSSID,
-          })),
-          "BSSID",
-        );
-        const clientsWithoutFiltering = Array.isArray(
-          airodumpDataObject["detection-run"]["wireless-network"],
-        )
-          ? airodumpDataObject["detection-run"]["wireless-network"].map(
-              (n) => ({
-                clients: n["wireless-client"]
-                  ? Array.isArray(n["wireless-client"])
-                    ? n["wireless-client"]
-                    : [n["wireless-client"]]
-                  : [],
-                ap: n.SSID,
-              }),
-            )
-          : [
-              {
-                clients: airodumpDataObject["detection-run"][
-                  "wireless-network"
-                ]["wireless-client"]
-                  ? Array.isArray(
-                      airodumpDataObject["detection-run"]["wireless-network"][
-                        "wireless-client"
-                      ],
-                    )
-                    ? airodumpDataObject["detection-run"]["wireless-network"][
-                        "wireless-client"
-                      ]
-                    : [
-                        airodumpDataObject["detection-run"]["wireless-network"][
-                          "wireless-client"
-                        ],
-                      ]
-                  : [],
-                ap: airodumpDataObject["detection-run"]["wireless-network"]
-                  .SSID,
+              });
+            });
+          } catch (error) {
+            console.error("Error parsing Kismet data:", error);
+          }
+          break;
+        case "airodump":
+          try {
+            const airodumpData = await file.text();
+            const parser = new XMLParser({
+              numberParseOptions: {
+                leadingZeros: false,
+                hex: false,
               },
-            ];
-        const clients: { mac: string; ap: string; probes: string[] }[] =
-          clientsWithoutFiltering
-            .map((client) => {
-              let ap = `${client.ap?.essid || ""}`;
-              ap = ap
-                .split(" ")
-                .map((p) => htmlEntityHexToString(p))
-                .join(" ");
-              return client.clients
-                .map((c) => {
-                  const probes = c["SSID"]
-                    ? Array.isArray(c["SSID"])
-                      ? c["SSID"].map((p) => `${p["ssid"] || ""}`)
-                      : [`${c["SSID"]["ssid"] || ""}`]
-                    : [];
-                  return {
-                    mac: c["client-mac"],
-                    ap,
-                    probes: probes
-                      .filter((p) => p !== "" && p !== undefined)
-                      .map((p) =>
-                        p
-                          .split(" ")
-                          .map((p) => htmlEntityHexToString(p))
-                          .join(" "),
-                      )
-                      .filter((p) => p !== ap)
-                      .filter((p) => !aps.map((a) => a.SSID).includes(p)),
-                  };
+            });
+            const airodumpDataObject: AirodumpData = parser.parse(airodumpData);
+            let aps = Array.isArray(
+              airodumpDataObject["detection-run"]["wireless-network"],
+            )
+              ? airodumpDataObject["detection-run"]["wireless-network"]
+                  .map((n) => ({
+                    SSID: `${n.SSID?.essid || ""}`,
+                    BSSID: `${n.BSSID || ""}`,
+                  }))
+                  .filter((n) => n.SSID !== "")
+              : airodumpDataObject["detection-run"][
+                    "wireless-network"
+                  ] instanceof Object
+                ? [
+                    {
+                      SSID: `${
+                        airodumpDataObject["detection-run"]["wireless-network"]
+                          .SSID?.essid || ""
+                      }`,
+                      BSSID: `${
+                        airodumpDataObject["detection-run"]["wireless-network"]
+                          .BSSID || ""
+                      }`,
+                    },
+                  ]
+                : [];
+            aps = _.uniqBy(
+              aps.map((ap) => ({
+                SSID: ap.SSID.split(" ")
+                  .map((p) => htmlEntityHexToString(p))
+                  .join(" "),
+                BSSID: ap.BSSID,
+              })),
+              "BSSID",
+            );
+            const clientsWithoutFiltering = Array.isArray(
+              airodumpDataObject["detection-run"]["wireless-network"],
+            )
+              ? airodumpDataObject["detection-run"]["wireless-network"].map(
+                  (n) => ({
+                    clients: n["wireless-client"]
+                      ? Array.isArray(n["wireless-client"])
+                        ? n["wireless-client"]
+                        : [n["wireless-client"]]
+                      : [],
+                    ap: n.SSID,
+                  }),
+                )
+              : [
+                  {
+                    clients: airodumpDataObject["detection-run"][
+                      "wireless-network"
+                    ]["wireless-client"]
+                      ? Array.isArray(
+                          airodumpDataObject["detection-run"][
+                            "wireless-network"
+                          ]["wireless-client"],
+                        )
+                        ? airodumpDataObject["detection-run"][
+                            "wireless-network"
+                          ]["wireless-client"]
+                        : [
+                            airodumpDataObject["detection-run"][
+                              "wireless-network"
+                            ]["wireless-client"],
+                          ]
+                      : [],
+                    ap: airodumpDataObject["detection-run"]["wireless-network"]
+                      .SSID,
+                  },
+                ];
+            const clients: { mac: string; ap: string; probes: string[] }[] =
+              clientsWithoutFiltering
+                .map((client) => {
+                  let ap = `${client.ap?.essid || ""}`;
+                  ap = ap
+                    .split(" ")
+                    .map((p) => htmlEntityHexToString(p))
+                    .join(" ");
+                  return client.clients
+                    .map((c) => {
+                      const probes = c["SSID"]
+                        ? Array.isArray(c["SSID"])
+                          ? c["SSID"].map((p) => `${p["ssid"] || ""}`)
+                          : [`${c["SSID"]["ssid"] || ""}`]
+                        : [];
+                      return {
+                        mac: c["client-mac"],
+                        ap,
+                        probes: probes
+                          .filter((p) => p !== "" && p !== undefined)
+                          .map((p) =>
+                            p
+                              .split(" ")
+                              .map((p) => htmlEntityHexToString(p))
+                              .join(" "),
+                          )
+                          .filter((p) => p !== ap)
+                          .filter((p) => !aps.map((a) => a.SSID).includes(p)),
+                      };
+                    })
+                    .flat();
                 })
                 .flat();
-            })
-            .flat();
-        const queries: { query: string; params: { [key: string]: any } }[] =
-          aps.map((ap) => {
-            const isHotspot =
-              /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
-                ap.SSID.toLowerCase(),
-              );
-            const isPrinter =
-              /(hewlett packard|canon|epson|brother|xerox)/i.test(
-                ap.SSID.toLowerCase(),
-              );
-            return {
-              query: `
-            MATCH (existing:Wifi {essid: $essid})
+            const queries: { query: string; params: { [key: string]: any } }[] =
+              aps.map((ap) => {
+                const isHotspot =
+                  /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
+                    ap.SSID.toLowerCase(),
+                  );
+                const isPrinter =
+                  /(hewlett packard|canon|epson|brother|xerox)/i.test(
+                    ap.SSID.toLowerCase(),
+                  );
+                return {
+                  query: `
+            MATCH (existing:Wifi {bssid: $bssid})
             WITH count(existing) as nodeExists
             WHERE nodeExists = 0
             CREATE (w:Wifi {
@@ -518,29 +517,29 @@ export const importFromFile = async (
               probe: $probe,
               hotspot: $hotspot,
               printer: $printer,
-              password: CASE WHEN $password = '' THEN null ELSE $password END,
-              pin: CASE WHEN $pin = '' THEN null ELSE $pin END
+              password: $password,
+              pin: $pin
             })
           `,
-              params: {
-                id: v4(),
-                essid: ap.SSID,
-                bssid: ap.BSSID,
-                probe: false,
-                hotspot: isHotspot,
-                printer: isPrinter,
-                password: "",
-                pin: "",
-              },
-            };
-          });
-        clients.forEach((client) => {
-          const isMobile =
-            /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
-              client.mac.toLowerCase(),
-            );
-          queries.push({
-            query: `
+                  params: {
+                    id: v4(),
+                    essid: ap.SSID,
+                    bssid: ap.BSSID,
+                    probe: false,
+                    hotspot: isHotspot,
+                    printer: isPrinter,
+                    password: "",
+                    pin: "",
+                  },
+                };
+              });
+            clients.forEach((client) => {
+              const isMobile =
+                /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
+                  client.mac.toLowerCase(),
+                );
+              queries.push({
+                query: `
             MATCH (existing:Client {macAddress: $macAddress})
             WITH count(existing) as nodeExists
             WHERE nodeExists = 0
@@ -555,19 +554,19 @@ export const importFromFile = async (
               mobile: $mobile
             })
           `,
-            params: {
-              id: v4(),
-              name: "Unknown",
-              macAddress: client.mac,
-              probes: client.probes,
-              desktop: !isMobile,
-              laptop: false,
-              tablet: false,
-              mobile: isMobile,
-            },
-          });
-          queries.push({
-            query: `
+                params: {
+                  id: v4(),
+                  name: "Unknown",
+                  macAddress: client.mac,
+                  probes: client.probes,
+                  desktop: !isMobile,
+                  laptop: false,
+                  tablet: false,
+                  mobile: isMobile,
+                },
+              });
+              queries.push({
+                query: `
             MATCH (w:Wifi {essid: $essid})
             MATCH (c:Client {macAddress: $macAddress})
             WITH c, w
@@ -576,14 +575,14 @@ export const importFromFile = async (
             WHERE r IS NULL
             CREATE (c)-[:CONNECTS_TO]->(w)
           `,
-            params: {
-              essid: client.ap,
-              macAddress: client.mac,
-            },
-          });
-          client.probes.forEach((probe) => {
-            queries.push({
-              query: `
+                params: {
+                  essid: client.ap,
+                  macAddress: client.mac,
+                },
+              });
+              client.probes.forEach((probe) => {
+                queries.push({
+                  query: `
               MATCH (existing:Wifi {essid: $essid})
               WITH count(existing) as nodeExists
               WHERE nodeExists = 0
@@ -594,17 +593,17 @@ export const importFromFile = async (
                 probe: true,
                 hotspot: false,
                 printer: false,
-                password: null,
-                pin: null
+                password: '',
+                pin: ''
               })
             `,
-              params: {
-                id: v4(),
-                essid: probe,
-              },
-            });
-            queries.push({
-              query: `
+                  params: {
+                    id: v4(),
+                    essid: probe,
+                  },
+                });
+                queries.push({
+                  query: `
               MATCH (w:Wifi {essid: $essid})
               MATCH (c:Client {macAddress: $macAddress})
               WITH c, w
@@ -613,22 +612,24 @@ export const importFromFile = async (
               WHERE r IS NULL
               CREATE (c)-[:KNOWS]->(w)
             `,
-              params: {
-                essid: probe,
-                macAddress: client.mac,
-              },
+                  params: {
+                    essid: probe,
+                    macAddress: client.mac,
+                  },
+                });
+              });
             });
-          });
-        });
-        const transaction = session.beginTransaction();
-        await Promise.all(
-          queries.map((query) => transaction.run(query.query, query.params)),
-        );
-        await transaction.commit();
-        await session.close();
-      } catch (error) {
-        console.error("Error parsing Airodump data:", error);
+          } catch (error) {
+            console.error("Error parsing Airodump data:", error);
+          }
+          break;
       }
-      break;
-  }
+    }),
+  );
+  const transaction = session.beginTransaction();
+  await Promise.all(
+    queries.map((query) => transaction.run(query.query, query.params)),
+  );
+  await transaction.commit();
+  await session.close();
 };
