@@ -90,6 +90,7 @@ yarn dev
 ## Todo
 
 - [ ] Add support for real-time data
+- [ ] Add more nodes and relations (Router, Service, ...etc)
 
 ## Contributing
 
