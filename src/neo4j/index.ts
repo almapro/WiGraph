@@ -495,18 +495,19 @@ export const importFromFile = async (
                     .flat();
                 })
                 .flat();
-            const queries: { query: string; params: { [key: string]: any } }[] =
-              aps.map((ap) => {
-                const isHotspot =
-                  /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
-                    ap.SSID.toLowerCase(),
-                  );
-                const isPrinter =
-                  /(hewlett packard|canon|epson|brother|xerox)/i.test(
-                    ap.SSID.toLowerCase(),
-                  );
-                return {
-                  query: `
+            aps.forEach((ap) => {
+              const apManufacturer =
+                ouiData[ap.BSSID.slice(0, 8).replaceAll(":", "")] || "";
+              const isHotspot =
+                /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
+                  apManufacturer.toLowerCase(),
+                );
+              const isPrinter =
+                /(hewlett packard|canon|epson|brother|xerox)/i.test(
+                  apManufacturer.toLowerCase(),
+                );
+              queries.push({
+                query: `
             MATCH (existing:Wifi {bssid: $bssid})
             WITH count(existing) as nodeExists
             WHERE nodeExists = 0
@@ -521,22 +522,24 @@ export const importFromFile = async (
               pin: $pin
             })
           `,
-                  params: {
-                    id: v4(),
-                    essid: ap.SSID,
-                    bssid: ap.BSSID,
-                    probe: false,
-                    hotspot: isHotspot,
-                    printer: isPrinter,
-                    password: "",
-                    pin: "",
-                  },
-                };
+                params: {
+                  id: v4(),
+                  essid: ap.SSID,
+                  bssid: ap.BSSID,
+                  probe: false,
+                  hotspot: isHotspot,
+                  printer: isPrinter,
+                  password: "",
+                  pin: "",
+                },
               });
+            });
             clients.forEach((client) => {
+              const clientManufacturer =
+                ouiData[client.mac.slice(0, 8).replaceAll(":", "")] || "";
               const isMobile =
                 /(apple|google|samsung|xiaomi|oneplus|oppo|vivo|realme)/i.test(
-                  client.mac.toLowerCase(),
+                  clientManufacturer.toLowerCase(),
                 );
               queries.push({
                 query: `
